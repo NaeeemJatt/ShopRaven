@@ -12,6 +12,16 @@
 *.log
 console.log*
 
+# Databases & Runtime State
+*.db
+*.sqlite
+*.sqlite3
+/data/
+app/data/
+backend/data/
+*.bak
+*.backup
+
 # Celery runtime
 celerybeat-schedule*
 backend/celerybeat-schedule*
