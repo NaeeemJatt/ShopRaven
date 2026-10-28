@@ -57,7 +57,7 @@ def execute_autonomous_product_pipeline(keyword: str, category: str) -> Dict[str
         ready_package = seo_engine.generate_package(winning_offer, pricing_package, category)
 
         # Step 7: Hand-off payload to Node.js Orchestrator
-        orchestrator_url = f"http://localhost:4000/api/notify"
+        orchestrator_url = f"{settings.ORCHESTRATOR_URL}/api/notify"
         payload = {
             "step": "PIPELINE_COMPLETE",
             "keyword": keyword,
@@ -101,7 +101,7 @@ def run_market_scout_task():
         # Report status to orchestrator
         try:
             requests.post(
-                "http://localhost:4000/api/tasks/scout-report",
+                f"{settings.ORCHESTRATOR_URL}/api/tasks/scout-report",
                 json={
                     "total_scanned": len(discovered),
                     "missing_count": len(missing),
@@ -137,7 +137,7 @@ def run_parallel_seo_ai_task():
 
         try:
             requests.post(
-                "http://localhost:4000/api/tasks/seo-report",
+                f"{settings.ORCHESTRATOR_URL}/api/tasks/seo-report",
                 json={
                     "status": "COMPLETED",
                     "enriched_products": enriched_count,
@@ -176,7 +176,7 @@ def run_storefront_auditor_task():
 
     try:
         requests.post(
-            "http://localhost:4000/api/tasks/auditor-report",
+            f"{settings.ORCHESTRATOR_URL}/api/tasks/auditor-report",
             json={
                 "audit_timestamp": "2026-10-26T07:45:00Z",
                 "findings": findings,
@@ -210,7 +210,7 @@ def run_visitor_behavior_analyzer_task():
 
     try:
         requests.post(
-            "http://localhost:4000/api/tasks/visitor-report",
+            f"{settings.ORCHESTRATOR_URL}/api/tasks/visitor-report",
             json=insights,
             timeout=5
         )
@@ -230,4 +230,38 @@ def sync_supplier_stock_and_waitlists():
 def run_weekly_blog_and_menu_task():
     """Triggers weekly auto-blog generation and sales-velocity menu reordering."""
     pass
+
+
+@celery_app.task(name="app.tasks.pipeline_tasks.backup_database_to_hf_dataset")
+def backup_database_to_hf_dataset() -> Dict[str, Any]:
+    """
+    Periodically backs up SQLite database directly to private Hugging Face Dataset.
+    Enables 100% free permanent persistence inside Hugging Face without external databases.
+    """
+    import os
+    dataset_repo = settings.HF_DATASET_BACKUP or os.getenv("HF_DATASET_BACKUP")
+    hf_token = settings.HF_TOKEN or os.getenv("HF_TOKEN")
+    db_url = settings.DATABASE_URL or os.getenv("DATABASE_URL", "")
+
+    if not dataset_repo or not hf_token or "sqlite" not in db_url:
+        return {"status": "SKIPPED", "reason": "No HF dataset specified or using external postgres"}
+
+    # Extract database file path from sqlite:///...
+    db_path = db_url.replace("sqlite:////", "/").replace("sqlite:///", "")
+    if not os.path.exists(db_path):
+        return {"status": "NO_DB_FOUND", "path": db_path}
+
+    try:
+        from huggingface_hub import HfApi
+        api = HfApi(token=hf_token)
+        api.upload_file(
+            path_or_fileobj=db_path,
+            path_in_repo="shopraven.db",
+            repo_id=dataset_repo,
+            repo_type="dataset",
+            commit_message="Automated ShopRaven database state checkpoint"
+        )
+        return {"status": "BACKUP_SUCCESS", "repo": dataset_repo}
+    except Exception as e:
+        return {"status": "BACKUP_FAILED", "error": str(e)}
 

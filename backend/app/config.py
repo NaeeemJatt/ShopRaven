@@ -27,12 +27,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(default="shopraven-secure-key-2026")
     BACKEND_HOST: str = Field(default="0.0.0.0")
     BACKEND_PORT: int = Field(default=8000)
+    ORCHESTRATOR_URL: str = Field(default="http://localhost:4000")
 
     # Database & Redis
     DATABASE_URL: str = Field(
         default="postgresql+psycopg2://postgres:postgres@localhost:5432/shopraven"
     )
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
+    HF_DATASET_BACKUP: str = Field(default="")
+    HF_TOKEN: str = Field(default="")
 
     # Storefront settings
     WC_STORE_URL: str = Field(default="https://nnstore.shop")

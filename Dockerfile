@@ -63,6 +63,7 @@ ENV HOME=/home/user \
     PYTHONPATH=/app/backend \
     PORT=7860 \
     ORCHESTRATOR_PORT=7860 \
+    ORCHESTRATOR_URL=http://127.0.0.1:7860 \
     DATABASE_URL=sqlite:////app/data/shopraven.db \
     REDIS_URL=redis://127.0.0.1:6379/0 \
     PYTHON_BACKEND_URL=http://127.0.0.1:8000
@@ -72,3 +73,4 @@ EXPOSE 7860
 
 # Entrypoint script starts redis, backend, celery, and orchestrator via supervisor
 ENTRYPOINT ["/app/entrypoint.sh"]
+

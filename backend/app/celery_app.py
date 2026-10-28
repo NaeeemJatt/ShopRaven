@@ -54,6 +54,11 @@ celery_app.conf.update(
             "task": "app.tasks.pipeline_tasks.run_weekly_blog_and_menu_task",
             "schedule": crontab(minute="0", hour="2", day_of_week="sunday"),
         },
+        # 7. Hugging Face Dataset Database Checkpoint: Runs every 30 minutes
+        "backup_database_to_hf_dataset_every_30m": {
+            "task": "app.tasks.pipeline_tasks.backup_database_to_hf_dataset",
+            "schedule": crontab(minute="*/30"),
+        },
     },
 )
 
