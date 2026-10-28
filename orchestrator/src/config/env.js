@@ -38,7 +38,7 @@ const NNSTORE_CATEGORIES = [
 ];
 
 const CONFIG = {
-  PORT: process.env.ORCHESTRATOR_PORT || 4000,
+  PORT: process.env.PORT || process.env.ORCHESTRATOR_PORT || 4000,
   PYTHON_BACKEND_URL: process.env.PYTHON_BACKEND_URL || 'http://localhost:8000',
   WC_STORE_URL: process.env.WC_STORE_URL || 'https://nnstore.shop',
   WC_CONSUMER_KEY: process.env.WC_CONSUMER_KEY || '',
