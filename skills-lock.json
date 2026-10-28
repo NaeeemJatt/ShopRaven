@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "project": "ShopRaven",
+  "author": "Naeem Ashiq",
+  "repository": "NaeeemJatt/ShopRaven",
+  "schema_lock_hash": "e9b5f89c6295248e3a2c07d3fa451b6a12dc8659d64a2f8d071ce716a57cb90f",
+  "prompt_templates": {
+    "nnstore_seo_aeo_v1": {
+      "version": "1.0.0",
+      "hash": "b2f0a149c4e85d99823f6c3821033d45ef889b78a9cba27376c66922a945fc04",
+      "model": "gemini-2.5-flash"
+    },
+    "auto_blogger_buying_guide_v1": {
+      "version": "1.0.0",
+      "hash": "a4d319e7cc53006d649ab06bce72a6b29f0a71be802f8623ad9c089f2130e551",
+      "model": "gemini-2.5-flash"
+    }
+  },
+  "scrapers": {
+    "hhc_dropshipping": {
+      "version": "1.2.0",
+      "domain": "member.hhcdropshipping.com",
+      "auth_type": "session_cookie"
+    },
+    "oshi_dropshipping": {
+      "version": "1.1.0",
+      "domain": "portal.oshidropship.com",
+      "auth_type": "session_cookie"
+    },
+    "daraz_pk": {
+      "version": "1.0.4",
+      "domain": "daraz.pk"
+    },
+    "priceoye_pk": {
+      "version": "1.0.2",
+      "domain": "priceoye.pk"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "Beauty & Care": {
+    "scrubber": ["daane aur blackhead nikalne wali machine", "face saaf karne wala scrubber", "chehray ki safai wali machine", "blackhead remover machine original", "ultrasonic facial machine"],
+    "derma": ["chehray ke daagh dhabbe khatam karne wala roller", "baal ugane wala roller", "derma roller original pakistan", "balon ka roller"],
+    "shaver": ["darhi bananey wali machine", "rechargeable trimmer shaver", "bal katne wali machine", "hair clipper portable"],
+    "massager": ["chehray ka massager", "jism ka dard door karne wala massager", "neck and body pain massager", "facial roller"],
+    "ice": ["chehray par baraf lagane wala roller", "face puffiness kam karne wala ice roller", "glow face tool"],
+    "curler": ["baal curl karne wali machine", "automatic hair curler cordless", "hair styling tools"],
+    "straightener": ["baal seedhe karne wali comb", "hair straightener brush", "ceramic hair iron"],
+    "whitening": ["rang gora karne wali cream original", "instant whitening wash", "glow skincare serum"]
+  },
+  "Kitchen Accessories": {
+    "chopper": ["pyaz tamatar katne wali machine", "electric qeema chopper", "sabzi katne wala cutter", "kitchen chopper rechargeable", "hand chopper daraz"],
+    "blender": ["juice nikalne wali bottle", "portable smoothie maker", "mini blender pakistan", "shake banane wali bottle"],
+    "dispenser": ["pani nikalne wala pump", "electric water bottle pump", "rechargeable can dispenser"],
+    "fryer": ["bina tail ke pakane wala air fryer", "air fryer silicon tray", "air fryer parchment paper"],
+    "oil": ["tail spray karne wali bottle", "oil spray bottle kitchen", "kam tail istemal karne wala sprayer"],
+    "sealer": ["lifafa band karne wali mini machine", "packet packing sealer portable", "plastic heat sealer"],
+    "peeler": ["chhilka utarne wala cutter", "multifunctional vegetable peeler", "kitchen slicer"]
+  },
+  "Home & Living": {
+    "lint": ["kapron se bur utarne wali machine", "bur remover machine original", "sweater safai machine", "clothes lint shaver"],
+    "light": ["andhere mein jalne wali light", "sensor wali battery light", "motion sensor lamp", "solar rechargeable wall light"],
+    "sunset": ["kamray ki khubsurat sunset lamp", "golden hour projection light", "sunset projector pakistan"],
+    "diffuser": ["khushboo wala dhuan nikalne wali machine", "aroma diffuser humidifier", "air purifier room moisture"],
+    "hanger": ["kapray latkane wala magic hanger", "almari organizer", "space saving multi hanger"],
+    "mop": ["ghar ki safai wala spin mop", "poocha lagane wali spray machine", "floor cleaning mop"],
+    "organizer": ["chizain sambhalne wala box", "bedsheet almari organizer bag", "makeup drawer storage"],
+    "mosquito": ["machar marne wali led light", "mosquito killer trap lamp", "electric mosquito bat"]
+  },
+  "Gym Accessories": {
+    "gripper": ["haath ki taqat barhane wala gripper", "hand workout counter", "panja mazboot karne wala tool", "finger strengthener"],
+    "belt": ["pait kam karne wali belt", "sweat slim belt gym", "slimming sweat sauna belt"],
+    "roller": ["six pack banane wala ab roller", "pait andar karne wala exercise wheel", "abs workout wheel"],
+    "band": ["kasrat karne wali rubber band", "resistance loop exercise bands", "yoga stretching strap"],
+    "rope": ["rassa koodne wali digital skipping rope", "jump rope fitness counter", "cordless jump rope"]
+  },
+  "Electronic Accessories": {
+    "earbuds": ["kaano ki tooti", "bina taar wale handsfree", "bluetooth wali tooti", "gaming earphones wireless", "anc earbuds low latency"],
+    "charger": ["gari mein lagne wala phone holder charger", "wireless magnetic powerbank", "fast charging cable 65w", "car mobile mount"],
+    "watch": ["smart ghari strap", "bluetooth call wali smartwatch", "fitness tracker ghari original"],
+    "printer": ["tasweer aur slip nikalne wala chota printer", "mini portable bluetooth thermal printer", "receipt printer"],
+    "fan": ["gale me pehanne wala chota fan", "portable rechargeable neck fan", "garmi se bachne wala mini fan"]
+  },
+  "Auto & Tools": {
+    "vacuum": ["gari ki safai wala chota vacuum", "portable car vacuum cleaner", "high power cordless dust cleaner"],
+    "inflator": ["hawa bharne wala digital pump", "tyre mein hawa bharne wali machine", "portable tyre inflator compressor"],
+    "scratch": ["gari ke kharash mitane wala chemical", "car scratch remover paste", "car polish wax liquid"],
+    "screwdriver": ["screws kholne wali electric machine", "precision screwdriver toolkit 48 in 1", "mobile repair kit"],
+    "holder": ["dashboard par mobile lagane wala stand", "magnetic car phone mount", "steering wheel clip"]
+  },
+  "Accessories": {
+    "wallet": ["chota pocket card wallet", "paise aur card sambhalne wala purse", "rfid blocking wallet original", "mini leather cardholder"],
+    "bag": ["chori se bachane wala bag", "chest crossbody shoulder bag", "waterproof sling travel bag"],
+    "glasses": ["dhoop se bachane wala chashma", "night driving glasses", "blue cut computer glasses"]
+  },
+  "Baby & Kids": {
+    "trimmer": ["bacchon ke nakhun kaatne wali machine", "safe electric baby nail clipper", "newborn baby grooming kit"],
+    "tablet": ["bacchon ki drawing wali lcd slate", "kids magic writing drawing tablet", "digital rough pad"],
+    "feeder": ["bachon ka doodh sterilizer", "silicone baby feeder bottle", "baby feeding spoon bowl"]
+  },
+  "Pets & Animals": {
+    "remover": ["kutton aur billiyon ke baal utarne wala tool", "pet hair fur remover roller", "cat dog grooming brush"],
+    "fountain": ["billiyon ke liye paani ka fountain", "automatic pet water dispenser", "dog water feeder"]
+  }
+}

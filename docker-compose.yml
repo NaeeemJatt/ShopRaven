@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shopraven-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shopraven
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: shopraven-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  shopraven-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shopraven-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/shopraven
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+
+  shopraven-celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shopraven-celery-worker
+    restart: unless-stopped
+    command: celery -A app.celery_app.celery_app worker --loglevel=info -B
+    depends_on:
+      - shopraven-backend
+      - redis
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/shopraven
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+
+  shopraven-orchestrator:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    container_name: shopraven-orchestrator
+    restart: unless-stopped
+    depends_on:
+      - shopraven-backend
+    env_file:
+      - .env
+    environment:
+      PYTHON_BACKEND_URL: http://shopraven-backend:8000
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./orchestrator:/app
+      - /app/node_modules
+      - ./frontend:/app/frontend
+
+volumes:
+  postgres_data:
+  redis_data:

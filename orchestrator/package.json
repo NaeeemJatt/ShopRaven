@@ -1,0 +1,24 @@
+{
+  "name": "shopraven-orchestrator",
+  "version": "1.0.0",
+  "description": "Node.js Orchestrator, WooCommerce Sync, WhatsApp Cloud API & Discord Bot Gateway for nnstore.shop",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "jest --detectOpenHandles"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

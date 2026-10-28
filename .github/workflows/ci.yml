@@ -1,0 +1,84 @@
+name: ShopRaven CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-lint-and-test:
+    name: Backend Lint & Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black pytest pytest-cov
+          pip install -r backend/requirements.txt
+
+      - name: Check Formatting & Linting
+        run: |
+          black --check backend/
+          ruff check backend/
+
+      - name: Run Pytest Suite
+        env:
+          ENVIRONMENT: test
+          DATABASE_URL: sqlite:///:memory:
+          REDIS_URL: redis://localhost:6379/0
+          WC_STORE_URL: https://nnstore.shop
+          WC_CONSUMER_KEY: mock_key
+          WC_CONSUMER_SECRET: mock_secret
+          GEMINI_API_KEY: mock_gemini_key
+        run: |
+          cd backend
+          pytest -v tests/ --cov=app
+
+  orchestrator-test:
+    name: Orchestrator Syntax & Jest Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: orchestrator/package.json
+
+      - name: Install Node Dependencies
+        run: |
+          cd orchestrator
+          npm ci
+
+      - name: Run Jest Test Suite
+        env:
+          NODE_ENV: test
+          WC_STORE_URL: https://nnstore.shop
+        run: |
+          cd orchestrator
+          npm test
+
+  frontend-build-verify:
+    name: Frontend Assets Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Control Room HTML Dashboard
+        run: |
+          test -f frontend/nnstore_ai_dashboard.html
+          echo "Standalone Control Room Dashboard confirmed present."
