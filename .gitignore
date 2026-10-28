@@ -11,6 +11,7 @@
 *.cert
 *.log
 console.log*
+*.pdf
 
 # Databases & Runtime State
 *.db
