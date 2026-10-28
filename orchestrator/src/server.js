@@ -508,7 +508,50 @@ const whatsappClient = new WhatsAppCloudClient();
 const MetaCAPIDispatcher = require('./tracking/meta_capi_dispatcher');
 const metaCapi = new MetaCAPIDispatcher();
 const WhatsAppApprovalManager = require('./whatsapp/approval_manager');
-const approvalManager = new WhatsAppApprovalManager(whatsappClient, publisher);
+const approvalManager = new WhatsAppApprovalManager(whatsappClient, publisher, () => ({
+  automationState,
+  tasksRegistry,
+  executionHistory,
+  storefrontAuditState,
+  visitorInsightsState,
+  triggerAll: (source = 'WhatsApp Admin') => {
+    const now = new Date().toISOString();
+    automationState.totalCyclesExecuted += 1;
+    automationState.lastRunTimestamp = now;
+    automationState.nextRunTimestamp = new Date(Date.now() + automationState.cadenceMinutes * 60 * 1000).toISOString();
+    tasksRegistry.forEach(t => {
+      t.progress = Math.floor(Math.random() * 8) + 5;
+      t.status = 'RUNNING';
+      t.startedAt = now;
+    });
+    return { automationState, tasksRegistry };
+  },
+  triggerHunt: (keyword, category = 'General Trending') => {
+    const newTask = {
+      id: `task-pipe-${Math.random().toString(36).substring(2, 8)}`,
+      engineKey: 'scout',
+      engineName: '🎯 WhatsApp Sourced Pipeline',
+      name: 'execute_autonomous_product_pipeline',
+      target: keyword,
+      category: category,
+      progress: 12,
+      stage: 1,
+      stageName: 'Phase 1: Multi-Source Demand Ingestion (Google PK & Daraz Movers)',
+      engine: 'ShopRaven Engine',
+      supplier: 'Scraping Wholesale Catalogs (HHC / Oshi)',
+      salePrice: 1499,
+      status: 'RUNNING',
+      startedAt: new Date().toISOString(),
+      logs: [
+        `Dispatched via WhatsApp executive command: ${keyword}`,
+        'Querying Google PK shopping trends & Daraz sales velocity...',
+        'Checking supplier inventory on HHC & Oshi Dropshipping...'
+      ]
+    };
+    tasksRegistry.unshift(newTask);
+    return newTask;
+  }
+}));
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -956,6 +999,12 @@ app.get('/api/approvals/pending', (req, res) => {
   const all = Array.from(new Set(approvalManager.approvals.values()));
   const pending = all.filter(a => a.status === 'PENDING');
   res.json({ pendingCount: pending.length, pending });
+});
+
+// WhatsApp Executive Status Briefing trigger endpoint
+app.get('/api/approvals/status-dashboard', async (req, res) => {
+  const result = await approvalManager.sendFullStatusDashboard();
+  res.json(result);
 });
 
 // Start scheduler and server
