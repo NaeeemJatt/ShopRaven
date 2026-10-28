@@ -3,8 +3,8 @@ title: ShopRaven AI Co-Founder
 emoji: 🦅
 colorFrom: blue
 colorTo: indigo
-sdk: docker
-app_port: 7860
+sdk: gradio
+app_file: hf_app.py
 pinned: false
 ---
 
