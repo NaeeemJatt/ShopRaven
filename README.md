@@ -1,13 +1,3 @@
----
-title: ShopRaven AI Co-Founder
-emoji: 🦅
-colorFrom: blue
-colorTo: indigo
-sdk: gradio
-app_file: hf_app.py
-pinned: false
----
-
 # ShopRaven — Autonomous E-Commerce AI Cofounder for nnstore.shop
 
 ShopRaven is a comprehensive autonomous e-commerce operations, product research, dual-supplier sourcing, dynamic pricing, SEO/AEO publishing, and real-time analytics platform built specifically for [nnstore.shop](https://nnstore.shop) in the Pakistani Cash-on-Delivery (COD) market.

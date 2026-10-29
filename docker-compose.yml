@@ -84,6 +84,7 @@ services:
       PYTHON_BACKEND_URL: http://shopraven-backend:8000
     ports:
       - "4000:4000"
+      - "80:4000"
     volumes:
       - ./orchestrator:/app
       - /app/node_modules
