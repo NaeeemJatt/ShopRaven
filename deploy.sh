@@ -69,3 +69,4 @@ echo ""
 echo "👉 Next Step: Paste the WhatsApp Webhook URL into Wasender"
 echo "👉 Test Command: Send 'STATUS' from WhatsApp (+923114618934)"
 echo "=========================================================="
+

@@ -5,3 +5,4 @@ if docker compose version &> /dev/null; then
 else
     docker-compose logs -f --tail=100 "$@"
 fi
+
