@@ -984,6 +984,69 @@ app.get('/api/approvals/quick-approve', async (req, res) => {
   `);
 });
 
+// 1-Tap Quick-Reject Web Link (Zero Dashboard Login)
+app.get('/api/approvals/quick-reject', async (req, res) => {
+  const { id, token } = req.query;
+  const approval = approvalManager.findPendingApproval(id || token);
+
+  if (!approval) {
+    return res.status(404).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Processed or Expired | ShopRaven</title>
+        <style>body{font-family:sans-serif;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;padding:20px;text-align:center;} .box{background:#1e293b;padding:30px;border-radius:12px;border:1px solid #334155;max-width:400px;width:100%;}</style>
+      </head>
+      <body>
+        <div class="box">
+          <div style="font-size:48px;margin-bottom:10px;">ℹ️</div>
+          <h2>Already Processed or Expired</h2>
+          <p style="color:#94a3b8;">This request has either already been approved, rejected, or expired.</p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  const rejectResult = await approvalManager.rejectApproval(approval, '1-Tap Quick-Reject Link');
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Rejected & Cancelled | ShopRaven</title>
+      <style>
+        body{font-family:system-ui,-apple-system,sans-serif;background:#090d16;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:16px;}
+        .card{background:#131c2e;padding:32px 24px;border-radius:16px;border:1px solid #ef444440;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);}
+        .badge{display:inline-block;padding:6px 14px;border-radius:9999px;background:#ef444420;color:#ef4444;font-weight:700;font-size:12px;margin-bottom:16px;border:1px solid #ef444440;}
+        h2{font-size:22px;margin:0 0 8px 0;color:#f1f5f9;}
+        p{font-size:14px;color:#94a3b8;line-height:1.5;margin:0 0 20px 0;}
+        .detail{background:#0c1220;border-radius:10px;padding:14px;text-align:left;font-size:13px;margin-bottom:20px;border:1px solid #1e293b;}
+        .detail-row{display:flex;justify-content:space-between;margin-bottom:6px;color:#cbd5e1;}
+        .btn-close{color:#64748b;font-size:12px;}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="badge">❌ REJECTED & CANCELLED</div>
+        <h2>Product Cancelled</h2>
+        <p>Product <strong>"${approval.title}"</strong> has been rejected and cancelled. It will NOT be published to nnstore.shop.</p>
+        <div class="detail">
+          <div class="detail-row"><span>Status:</span><strong style="color:#ef4444;">REJECTED</strong></div>
+          <div class="detail-row"><span>Draft ID:</span><span>#${approval.targetId}</span></div>
+          <div class="detail-row"><span>Approval Code:</span><span>${approval.id}</span></div>
+        </div>
+        <div class="btn-close">You can safely close this window now. Confirmation sent to WhatsApp.</div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Simulation endpoint for testing WhatsApp text replies
 app.post('/api/approvals/simulate-reply', async (req, res) => {
   const { from, text } = req.body;

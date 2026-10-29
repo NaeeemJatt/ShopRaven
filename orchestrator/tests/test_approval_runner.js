@@ -216,4 +216,79 @@ test('WhatsApp Approval Manager & Status Dashboard Test Suite', async (t) => {
     assert.ok(helpMsg.includes('HUNT'));
     assert.ok(helpMsg.includes('TRIGGER ALL'));
   });
+
+  await t.test('10. 1-Tap Quick-Reject cancels approval without dashboard login', async () => {
+    publishedDraftId = null;
+    const app4 = await manager.requestApproval({
+      type: 'PUBLISH_PRODUCT',
+      targetId: 555,
+      title: 'Rejectable Gadget',
+      details: { 'Sale Price': 'Rs. 1,499' }
+    });
+
+    const pending = manager.findPendingApproval(app4.token);
+    assert.ok(pending);
+    const result = await manager.rejectApproval(pending, '1-Tap Quick-Reject Link');
+    assert.strictEqual(result.status, 'REJECTED');
+    assert.strictEqual(publishedDraftId, null);
+    assert.strictEqual(pending.status, 'REJECTED');
+
+    const rejectMsg = sentMessages[sentMessages.length - 1].text;
+    assert.ok(rejectMsg.includes('REJECTED & CANCELLED'));
+    assert.ok(rejectMsg.includes('Rejectable Gadget'));
+  });
+
+  await t.test('11. Safety Guard enforces +40% profit floor and official categories', () => {
+    // A: Safe Item (+47% margin, valid category)
+    const safeApproval = {
+      title: 'Good Margin Lamp',
+      payload: { wholesale_cost: 1000, sale_price: 1499, category: 'Home & Living', in_stock: true }
+    };
+    const safeResult = manager.verifySafetyGuard(safeApproval);
+    assert.strictEqual(safeResult.safe, true);
+    assert.strictEqual(safeResult.reasons.length, 0);
+
+    // B: Unsafe Item (<40% margin, e.g. 1000 cost, 1200 sale = only 20%)
+    const lowMarginApproval = {
+      title: 'Low Margin Item',
+      payload: { wholesale_cost: 1000, sale_price: 1200, category: 'Home & Living' }
+    };
+    const lowMarginResult = manager.verifySafetyGuard(lowMarginApproval);
+    assert.strictEqual(lowMarginResult.safe, false);
+    assert.ok(lowMarginResult.reasons[0].includes('Profit margin violation'));
+
+    // C: Unsafe Item (Invalid category)
+    const invalidCatApproval = {
+      title: 'Fake Category Item',
+      payload: { wholesale_cost: 500, sale_price: 999, category: 'Illegal Category' }
+    };
+    const invalidCatResult = manager.verifySafetyGuard(invalidCatApproval);
+    assert.strictEqual(invalidCatResult.safe, false);
+    assert.ok(invalidCatResult.reasons.some(r => r.includes('Unauthorized category')));
+  });
+
+  await t.test('12. Auto-Pilot auto-accepts and publishes unreviewed safe item after 20 mins', async () => {
+    publishedDraftId = null;
+    const safeApp = await manager.requestApproval({
+      type: 'PUBLISH_PRODUCT',
+      targetId: 777,
+      title: 'Auto-Pilot Smart Watch',
+      details: { 'Wholesale Cost': 'Rs. 1,000', 'Sale Price': 'Rs. 1,699', 'Category': 'Electronic Accessories' },
+      payload: { wholesale_cost: 1000, sale_price: 1699, category: 'Electronic Accessories', slug: 'smart-watch' }
+    });
+
+    // Simulate 21 minutes passing
+    safeApp.createdAt = new Date(Date.now() - 21 * 60 * 1000).toISOString();
+
+    const results = await manager.processAutoApprovals();
+    assert.strictEqual(results.length, 1);
+    assert.strictEqual(results[0].action, 'AUTO_APPROVED');
+    assert.strictEqual(safeApp.status, 'APPROVED');
+    assert.strictEqual(publishedDraftId, 777); // Published live!
+
+    // Verify WhatsApp confirmation was dispatched
+    const confirmMsg = sentMessages[sentMessages.length - 1].text;
+    assert.ok(confirmMsg.includes('APPROVED & PUBLISHED LIVE'));
+    assert.ok(confirmMsg.includes('Auto-Pilot Safety Guard'));
+  });
 });

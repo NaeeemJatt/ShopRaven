@@ -15,7 +15,7 @@
  */
 
 const crypto = require('crypto');
-const { CONFIG } = require('../config/env');
+const { CONFIG, NNSTORE_CATEGORIES } = require('../config/env');
 
 class WhatsAppApprovalManager {
   constructor(whatsappClient, productPublisher, stateProvider = null) {
@@ -23,11 +23,40 @@ class WhatsAppApprovalManager {
     this.publisher = productPublisher;
     this.stateProvider = stateProvider;
     this.adminPhone = CONFIG.ADMIN_WHATSAPP_NUMBER || '+923114618934';
-    this.baseUrl = process.env.BASE_PUBLIC_URL || 'http://localhost:4000';
+    this.baseUrl = process.env.BASE_PUBLIC_URL || 'http://52.65.208.69';
+    this.autoApproveMinutes = Number(process.env.AUTO_APPROVE_MINUTES) || 20;
 
     // Store active approval requests in memory
     this.approvals = new Map();
     this.counter = 100;
+
+    // Start background auto-approval checker (runs every 30 seconds)
+    if (process.env.NODE_ENV !== 'test') {
+      this.startAutoApprovalTimer(30000);
+    }
+  }
+
+  /**
+   * Starts periodic timer for auto-approving unreviewed items after 20 minutes.
+   */
+  startAutoApprovalTimer(intervalMs = 30000) {
+    if (this._timer) clearInterval(this._timer);
+    this._timer = setInterval(() => {
+      this.processAutoApprovals().catch(err => {
+        console.error('[Auto-Approval Timer Error]:', err.message);
+      });
+    }, intervalMs);
+    if (this._timer.unref) this._timer.unref();
+  }
+
+  /**
+   * Stops auto-approval background timer.
+   */
+  stopAutoApprovalTimer() {
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
   }
 
   /**
@@ -88,6 +117,7 @@ class WhatsAppApprovalManager {
     const { id, shortCode, token, title, description, details } = approval;
     const timestamp = new Date().toLocaleTimeString('en-PK', { timeZone: 'Asia/Karachi' });
     const quickApproveUrl = `${this.baseUrl}/api/approvals/quick-approve?id=${id}&token=${token}`;
+    const quickRejectUrl = `${this.baseUrl}/api/approvals/quick-reject?id=${id}&token=${token}`;
 
     let detailsList = '';
     for (const [k, v] of Object.entries(details)) {
@@ -100,12 +130,15 @@ class WhatsAppApprovalManager {
       `🔢 *Approval Code:* ${id}\n\n` +
       (detailsList ? `${detailsList}\n` : '') +
       `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `⏳ *20-MINUTE AUTO-ACCEPT WINDOW:*\n` +
+      `If not rejected within 20 mins, ShopRaven Safety Guard will automatically verify profit (+40% floor) and publish it live to *nnstore.shop*.\n\n` +
+      `📱 *ONE-TAP ACTIONS (NO WEBHOOK NEEDED):*\n` +
+      `👉 *Publish Right Now:* ${quickApproveUrl}\n` +
+      `👉 *Reject / Cancel:* ${quickRejectUrl}\n\n` +
       `💬 *REPLY DIRECTLY ON WHATSAPP:*\n` +
       `👉 Reply *APPROVE* or *YES* (to publish live)\n` +
       `👉 Or Reply *APPROVE ${shortCode}*\n` +
-      `👉 Reply *REJECT* (to cancel)\n\n` +
-      `📱 *OR 1-TAP QUICK APPROVE (NO LOGIN):*\n` +
-      `${quickApproveUrl}\n` +
+      `👉 Reply *REJECT* (to cancel)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `⏱ *Sent:* ${timestamp} PKT | nnstore.shop`;
   }
@@ -447,14 +480,118 @@ class WhatsAppApprovalManager {
     }
 
     if (isReject) {
-      approval.status = 'REJECTED';
-      const rejectMsg = `❌ *Rejected on WhatsApp*\nApproval *${approval.id}* for "${approval.title}" has been cancelled.`;
-      await this.whatsappClient.sendTextMessage(this.adminPhone, rejectMsg);
-      return { handled: true, status: 'REJECTED', approval };
+      return await this.rejectApproval(approval, 'WhatsApp Direct Reply');
     }
 
     // Execute approval
     return await this.executeApproval(approval, 'WhatsApp Direct Reply');
+  }
+
+  /**
+   * Rejects an approval and alerts Admin.
+   */
+  async rejectApproval(approval, actor = '1-Tap Quick-Reject') {
+    approval.status = 'REJECTED';
+    approval.rejectedAt = new Date().toISOString();
+    approval.rejectedBy = actor;
+
+    const actorLabel = actor.includes('WhatsApp') ? 'Rejected on WhatsApp' : actor;
+    const rejectMsg = `❌ *REJECTED & CANCELLED (${actorLabel})*\n\n` +
+      `Product *"${approval.title}"* (Draft #${approval.targetId}) has been cancelled.\n` +
+      `It will *NOT* be published to nnstore.shop.`;
+
+    console.log(`[WhatsApp Approval] Rejected approval ${approval.id} via ${actor}`);
+    await this.whatsappClient.sendTextMessage(this.adminPhone, rejectMsg);
+
+    return {
+      handled: true,
+      status: 'REJECTED',
+      approval
+    };
+  }
+
+  /**
+   * Safety Guard Verification: Ensures candidate product has zero negative business impact
+   * before auto-publishing live to store.
+   */
+  verifySafetyGuard(approval) {
+    const issues = [];
+    const payload = approval.payload || {};
+    const details = approval.details || {};
+
+    // 1. Minimum Wholesale Cost check
+    const cost = Number(payload.wholesale_cost || payload.cost || details['Wholesale Cost']?.replace(/[^0-9.]/g, '') || 0);
+    const salePrice = Number(payload.sale_price || payload.regular_price || details['Sale Price']?.replace(/[^0-9.]/g, '') || 0);
+
+    if (cost <= 0 && (!salePrice || salePrice <= 0)) {
+      issues.push('Invalid cost/price structure');
+    }
+
+    // 2. Minimum +40% Profit Guard
+    if (cost > 0 && salePrice > 0) {
+      const minSalePrice = cost * 1.40;
+      if (salePrice < minSalePrice - 1) { // 1 PKR tolerance for rounding
+        issues.push(`Profit margin violation: Sale price (Rs. ${salePrice}) is below +40% profit floor (Rs. ${Math.round(minSalePrice)})`);
+      }
+    }
+
+    // 3. Category Validation (must be one of 7 official categories)
+    const category = payload.category || details['Category'] || '';
+    if (category && Array.isArray(NNSTORE_CATEGORIES) && !NNSTORE_CATEGORIES.includes(category)) {
+      issues.push(`Unauthorized category "${category}". Must be one of the 7 locked store categories.`);
+    }
+
+    // 4. In-Stock verification
+    if (payload.in_stock === false) {
+      issues.push('Supplier reports item is out of stock.');
+    }
+
+    return {
+      safe: issues.length === 0,
+      reasons: issues
+    };
+  }
+
+  /**
+   * Scans all pending approvals and auto-accepts unreviewed items older than 20 minutes
+   * that pass Safety Guard verification.
+   */
+  async processAutoApprovals() {
+    const now = Date.now();
+    const thresholdMs = this.autoApproveMinutes * 60 * 1000;
+    const all = Array.from(new Set(this.approvals.values()));
+    const pending = all.filter(a => a.status === 'PENDING');
+
+    const results = [];
+    for (const approval of pending) {
+      const createdTime = new Date(approval.createdAt).getTime();
+      const ageMs = now - createdTime;
+
+      if (ageMs >= thresholdMs) {
+        console.log(`[Auto-Pilot Safety Guard] Evaluating approval ${approval.id} ("${approval.title}") after ${Math.round(ageMs / 60000)} mins...`);
+
+        const safety = this.verifySafetyGuard(approval);
+        if (safety.safe) {
+          console.log(`[Auto-Pilot Safety Guard] Safety checks PASSED for ${approval.id}. Auto-publishing to live store...`);
+          const res = await this.executeApproval(approval, `Auto-Pilot Safety Guard (${this.autoApproveMinutes}-Min Window Elapsed)`);
+          results.push({ id: approval.id, action: 'AUTO_APPROVED', result: res });
+        } else {
+          console.warn(`[Auto-Pilot Safety Guard] Safety checks FAILED for ${approval.id}: ${safety.reasons.join(', ')}`);
+          approval.status = 'SAFETY_HOLD';
+          approval.rejectedReason = safety.reasons.join('; ');
+
+          const alertMsg = `⚠️ *[SAFETY GUARD HALTED AUTO-PUBLISH]*\n\n` +
+            `Item *"${approval.title}"* reached its ${this.autoApproveMinutes}-minute auto-publish window but *FAILED* safety verification:\n\n` +
+            safety.reasons.map(r => `• ❌ ${r}`).join('\n') + `\n\n` +
+            `🛡️ *Protection Active:* The product was *NOT* published to nnstore.shop.\n` +
+            `Draft ID #${approval.targetId} remains quarantined in drafts.`;
+
+          await this.whatsappClient.sendTextMessage(this.adminPhone, alertMsg);
+          results.push({ id: approval.id, action: 'SAFETY_HOLD', reasons: safety.reasons });
+        }
+      }
+    }
+    return results;
   }
 
   /**
