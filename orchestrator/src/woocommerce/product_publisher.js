@@ -59,6 +59,7 @@ class WooCommerceProductPublisher {
       const sitemapUrl = encodeURIComponent('https://nnstore.shop/sitemap_index.xml');
       fetch(`https://www.google.com/ping?sitemap=${sitemapUrl}`).catch(() => {});
       fetch(`https://www.bing.com/ping?sitemap=${sitemapUrl}`).catch(() => {});
+      await this.wcClient.put('/system_status/tools/clear_transients');
     } catch (e) {
       // Best-effort ping
     }
