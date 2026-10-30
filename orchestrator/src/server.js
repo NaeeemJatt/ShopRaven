@@ -18,6 +18,14 @@ const { buildDraftCreatedEmbed } = require('./discord/embed_templates');
 const app = express();
 app.use(express.json());
 
+// Gracefully handle malformed JSON payloads from web probes and scanners
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ status: 'error', message: 'Malformed JSON payload' });
+  }
+  next(err);
+});
+
 // CORS configuration to allow local dashboard requests from any origin or file://
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');

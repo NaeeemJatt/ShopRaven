@@ -4,6 +4,9 @@ into a unified composite demand score (0-100).
 """
 
 from typing import List, Dict, Any, Optional
+from datetime import datetime
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.models.trend_keyword import TrendKeyword
 from app.models.wc_product_sync import WCProductSync
@@ -77,14 +80,26 @@ class SearchDemandScanner:
         }
 
         saved_keywords: List[TrendKeyword] = []
+        seen_keywords = set()
 
         for candidate in scored_candidates:
-            keyword_str = candidate["keyword"]
-            tokens_str = candidate["normalized_tokens"]
+            keyword_str = candidate.get("keyword", "").strip()
+            if not keyword_str:
+                continue
+
+            normalized_key = keyword_str.lower()
+            if normalized_key in seen_keywords:
+                continue
+            seen_keywords.add(normalized_key)
+
+            tokens_str = candidate.get("normalized_tokens", "")
             candidate_tokens = set(tokens_str.split())
 
-            # Check if exists in DB already
-            existing_kw = db.query(TrendKeyword).filter(TrendKeyword.keyword == keyword_str).first()
+            # Check if exists in DB already (case-insensitive)
+            existing_kw = db.query(TrendKeyword).filter(
+                func.lower(TrendKeyword.keyword) == normalized_key
+            ).first()
+
             if not existing_kw:
                 # Perform Catalog Gap Check
                 is_in_store = False
@@ -99,18 +114,42 @@ class SearchDemandScanner:
                 new_record = TrendKeyword(
                     keyword=keyword_str,
                     normalized_tokens=tokens_str,
-                    category_name=candidate["category_name"],
+                    category_name=candidate.get("category_name", "General"),
                     monthly_searches=candidate.get("monthly_searches", 1000),
                     growth_pct=candidate.get("growth_pct", 20.0),
                     source=candidate.get("source", "Google PK"),
                     exists_in_store=is_in_store,
                     matched_wc_product_id=matched_id,
                 )
-                db.add(new_record)
-                db.commit()
-                db.refresh(new_record)
-                saved_keywords.append(new_record)
+                try:
+                    db.add(new_record)
+                    db.commit()
+                    db.refresh(new_record)
+                    saved_keywords.append(new_record)
+                except IntegrityError:
+                    db.rollback()
+                    # Concurrent worker or collision safety: load existing record and update
+                    existing_kw = db.query(TrendKeyword).filter(
+                        func.lower(TrendKeyword.keyword) == normalized_key
+                    ).first()
+                    if existing_kw:
+                        try:
+                            existing_kw.last_scanned_at = datetime.utcnow()
+                            existing_kw.growth_pct = candidate.get("growth_pct", existing_kw.growth_pct)
+                            existing_kw.monthly_searches = candidate.get("monthly_searches", existing_kw.monthly_searches)
+                            db.commit()
+                        except Exception:
+                            db.rollback()
+                        saved_keywords.append(existing_kw)
             else:
+                # Refresh metrics for existing keyword
+                try:
+                    existing_kw.last_scanned_at = datetime.utcnow()
+                    existing_kw.growth_pct = candidate.get("growth_pct", existing_kw.growth_pct)
+                    existing_kw.monthly_searches = candidate.get("monthly_searches", existing_kw.monthly_searches)
+                    db.commit()
+                except Exception:
+                    db.rollback()
                 saved_keywords.append(existing_kw)
 
         return saved_keywords
