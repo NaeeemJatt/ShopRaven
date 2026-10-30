@@ -74,14 +74,16 @@ class WhatsAppApprovalManager {
   }
 
   /**
-   * Generates a new approval request, saves it, and dispatches a rich WhatsApp message
+   * Generates a new approval request, saves it, and dispatches a rich WhatsApp message (with image)
    * with both Direct Reply instructions and 1-Tap Quick-Approve link.
    */
-  async requestApproval({ type, targetId, title, description, details = {}, payload = {} }) {
+  async requestApproval({ type, targetId, title, description, details = {}, payload = {}, imageUrl = null }) {
     this.counter += 1;
     const shortCode = String(this.counter);
     const approvalId = `APR-${shortCode}`;
     const token = crypto.randomBytes(16).toString('hex');
+
+    const resolvedImg = imageUrl || payload.image_url || payload.image || details.imageUrl || (payload.images && payload.images[0]?.src);
 
     const approval = {
       id: approvalId,
@@ -93,6 +95,7 @@ class WhatsAppApprovalManager {
       description,
       details,
       payload,
+      imageUrl: resolvedImg,
       status: 'PENDING',
       createdAt: new Date().toISOString()
     };
@@ -104,8 +107,8 @@ class WhatsAppApprovalManager {
     // Format rich WhatsApp message
     const message = this.buildWhatsAppMessage(approval);
 
-    console.log(`[WhatsApp Approval] Requesting approval ${approvalId} for "${title}" -> ${this.adminPhone}`);
-    await this.whatsappClient.sendTextMessage(this.adminPhone, message);
+    console.log(`[WhatsApp Approval] Requesting approval ${approvalId} for "${title}" -> ${this.adminPhone} (Image: ${resolvedImg || 'none'})`);
+    await this.whatsappClient.sendTextMessage(this.adminPhone, message, resolvedImg);
 
     return approval;
   }

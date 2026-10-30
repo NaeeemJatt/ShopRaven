@@ -13,6 +13,58 @@ from app.suppliers.session_vault import SupplierSessionVault
 settings = get_settings()
 
 
+def resolve_supplier_image_urls(keyword: str) -> list[str]:
+    k = keyword.lower()
+    if any(t in k for t in ["sunset", "rgb lamp", "projection light"]):
+        return [
+            "https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg",
+            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["scrubber", "pore cleaner", "skin scrubber", "blackhead"]):
+        return [
+            "https://nnstore.shop/wp-content/uploads/2026/10/ultrasonic_skin_scrubber_1793319459490.jpg",
+            "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["chopper", "cutter", "blender", "garlic", "vegetable"]):
+        return [
+            "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=800&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1584990347449-397a61d76395?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["earbud", "tws", "bluetooth", "headset", "audio"]):
+        return [
+            "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["watch", "smartwatch", "fitness"]):
+        return [
+            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["car", "mount", "charger", "holder"]):
+        return [
+            "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["bag", "backpack", "crossbody", "wallet"]):
+        return [
+            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["tool", "screwdriver", "drill"]):
+        return [
+            "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["diffuser", "humidifier", "aroma"]):
+        return [
+            "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80"
+        ]
+    if any(t in k for t in ["nail", "baby", "toddler"]):
+        return [
+            "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&auto=format&fit=crop&q=80"
+        ]
+    return [
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"
+    ]
+
+
 class HHCDropshippingClient:
     """Interacts with HHC Dropshipping authenticated portal."""
 
@@ -85,10 +137,7 @@ class HHCDropshippingClient:
             in_stock=True,
             raw_description=f"High quality {keyword} imported directly. Best for retail in Pakistan. Fast COD dispatch.",
             specs={"warranty": "7 Days Check Warranty", "material": "ABS / Stainless Steel", "origin": "Imported"},
-            image_urls=[
-                "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop"
-            ]
+            image_urls=resolve_supplier_image_urls(keyword)
         )
 
     def fetch_product_detail(self, product_url: str) -> SupplierOfferSchema:

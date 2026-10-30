@@ -34,9 +34,10 @@ class WhatsAppCloudClient {
   }
 
   /**
-   * Primary method to send a WhatsApp text message to any Pakistani or international number.
+   * Primary method to send a WhatsApp message (with optional product image) to any Pakistani or international number.
+   * If imageUrl is provided, Wasender dispatches the image directly with bodyText as the caption.
    */
-  async sendTextMessage(recipientPhonePK, bodyText) {
+  async sendTextMessage(recipientPhonePK, bodyText, imageUrl = null) {
     const to = this.normalizePhoneNumber(recipientPhonePK);
     if (!to) {
       throw new Error('Invalid phone number provided');
@@ -45,13 +46,18 @@ class WhatsAppCloudClient {
     // 1. Prioritize WasenderAPI
     if (this.wasenderToken) {
       try {
+        const payload = { to, text: bodyText };
+        if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
+          payload.imageUrl = imageUrl;
+        }
+
         const resp = await fetch(this.wasenderUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.wasenderToken}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ to, text: bodyText }),
+          body: JSON.stringify(payload),
           signal: AbortSignal.timeout(12000)
         });
 
@@ -72,10 +78,16 @@ class WhatsAppCloudClient {
         const payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
-          to: to.replace('+', ''),
-          type: 'text',
-          text: { preview_url: true, body: bodyText }
+          to: to.replace('+', '')
         };
+
+        if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
+          payload.type = 'image';
+          payload.image = { link: imageUrl, caption: bodyText };
+        } else {
+          payload.type = 'text';
+          payload.text = { preview_url: true, body: bodyText };
+        }
 
         const resp = await fetch(this.metaBaseURL, {
           method: 'POST',

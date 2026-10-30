@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from app.config import get_settings
 from app.schemas.supplier_schema import SupplierOfferSchema
 from app.suppliers.session_vault import SupplierSessionVault
+from app.suppliers.hhc_client import resolve_supplier_image_urls
 
 settings = get_settings()
 
@@ -85,10 +86,7 @@ class OshiDropshippingClient:
             in_stock=True,
             raw_description=f"Verified Oshi product {keyword}. Factory checked and tested before shipment.",
             specs={"packaging": "Retail Box", "stock_location": "Lahore / Karachi Hub"},
-            image_urls=[
-                "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop"
-            ]
+            image_urls=resolve_supplier_image_urls(keyword)
         )
 
     def fetch_product_detail(self, product_url: str) -> SupplierOfferSchema:

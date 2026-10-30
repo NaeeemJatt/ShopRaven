@@ -11,8 +11,8 @@ test('WhatsApp Approval Manager & Status Dashboard Test Suite', async (t) => {
       if (c.startsWith('03')) c = '92' + c.slice(1);
       return '+' + c;
     },
-    sendTextMessage: async (to, text) => {
-      sentMessages.push({ to, text });
+    sendTextMessage: async (to, text, imageUrl = null) => {
+      sentMessages.push({ to, text, imageUrl });
       return { success: true };
     }
   };
@@ -290,5 +290,21 @@ test('WhatsApp Approval Manager & Status Dashboard Test Suite', async (t) => {
     const confirmMsg = sentMessages[sentMessages.length - 1].text;
     assert.ok(confirmMsg.includes('APPROVED & PUBLISHED LIVE'));
     assert.ok(confirmMsg.includes('Auto-Pilot Safety Guard'));
+  });
+
+  await t.test('13. Dispatches product image directly with approval request message', async () => {
+    const testImgUrl = 'https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg';
+    await manager.requestApproval({
+      type: 'PUBLISH_PRODUCT',
+      targetId: 888,
+      title: 'Smart Sunset Lamp with Photo',
+      imageUrl: testImgUrl,
+      details: { 'Wholesale Cost': 'Rs. 780', 'Sale Price': 'Rs. 1,449' },
+      payload: { wholesale_cost: 780, sale_price: 1449 }
+    });
+
+    const lastSent = sentMessages[sentMessages.length - 1];
+    assert.strictEqual(lastSent.imageUrl, testImgUrl);
+    assert.ok(lastSent.text.includes('Smart Sunset Lamp with Photo'));
   });
 });

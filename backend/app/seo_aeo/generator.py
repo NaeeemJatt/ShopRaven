@@ -206,6 +206,27 @@ class NNStoreSEOAEOEngine:
                 "alt": alt_text
             })
 
+        cat_map = {
+            "beauty": 17,
+            "kitchen": 30,
+            "home": 41,
+            "living": 41,
+            "gym": 50,
+            "fitness": 50,
+            "electronic": 51,
+            "gadget": 51,
+            "auto": 131,
+            "tool": 131,
+            "accessories": 132,
+            "bag": 132,
+        }
+        clean_cat = (category or "").lower()
+        matched_cid = 41
+        for kw, cid in cat_map.items():
+            if kw in clean_cat:
+                matched_cid = cid
+                break
+
         return WooCommerceReadyPackageSchema(
             title=offer.product_title,
             slug=slug,
@@ -213,7 +234,7 @@ class NNStoreSEOAEOEngine:
             sale_price=str(pricing.recommended_sale_price),
             short_description=short_description,
             description=full_description,
-            categories=[{"name": category}],
+            categories=[{"id": matched_cid, "name": category}],
             tags=tags,
             images=images,
             meta_data=meta_data,
