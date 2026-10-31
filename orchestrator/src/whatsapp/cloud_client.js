@@ -127,7 +127,7 @@ class WhatsAppCloudClient {
   /**
    * Send instant action alert to Admin (+923114618934)
    */
-  async notifyAdminAction(actionTitle, summary, details = {}) {
+  async notifyAdminAction(actionTitle, summary, details = {}, imageUrl = null) {
     let fieldsText = '';
     for (const [key, val] of Object.entries(details)) {
       if (val !== undefined && val !== null && val !== '') {
@@ -140,9 +140,38 @@ class WhatsAppCloudClient {
 
     try {
       console.log(`[WhatsApp Admin] Alerting ${this.adminPhone}: ${actionTitle}`);
-      return await this.sendTextMessage(this.adminPhone, message);
+      return await this.sendTextMessage(this.adminPhone, message, imageUrl);
     } catch (err) {
       console.error('[WhatsApp Admin Alert Error]:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Send high-priority instant notification with image when a product is published live to nnstore.shop
+   */
+  async notifyProductPublished(productInfo) {
+    const { title, salePrice, regularPrice, category, liveUrl, imageUrl, id } = productInfo;
+    const timestamp = new Date().toLocaleTimeString('en-PK', { timeZone: 'Asia/Karachi' });
+    const formattedSale = typeof salePrice === 'number' ? salePrice.toLocaleString('en-PK') : salePrice;
+    const formattedReg = typeof regularPrice === 'number' ? regularPrice.toLocaleString('en-PK') : regularPrice;
+
+    const message = `🎉 *PRODUCT PUBLISHED LIVE ON NNSTORE.SHOP!* 🚀\n\n` +
+      `📦 *Product:* ${title}\n` +
+      `🏷️ *Category:* ${category || 'Storefront'}\n` +
+      `💰 *Sale Price:* Rs. ${formattedSale} (M.R.P: Rs. ${formattedReg || '2,499'})\n` +
+      `🚚 *Delivery:* Flat Rs. 150 Cash on Delivery (COD) across Pakistan\n` +
+      `🌐 *Live Store Link:* ${liveUrl}\n\n` +
+      `✅ Google & Bing sitemaps pinged for instant indexation\n` +
+      `📱 Published via Control Room Dashboard\n` +
+      `⏱ *Published At:* ${timestamp} PKT\n` +
+      `🛒 *Store:* ${CONFIG.WC_STORE_URL}`;
+
+    try {
+      console.log(`[WhatsApp] Sending instant live publication alert to ${this.adminPhone} for "${title}"`);
+      return await this.sendTextMessage(this.adminPhone, message, imageUrl);
+    } catch (err) {
+      console.error('[WhatsApp Publish Alert Error]:', err.message);
       return { success: false, error: err.message };
     }
   }

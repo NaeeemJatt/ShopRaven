@@ -618,7 +618,7 @@ class WhatsAppApprovalManager {
         }
       }
 
-      // Notify Admin on WhatsApp with live confirmation & store link
+      // Notify Admin on WhatsApp with live confirmation & store link + product image
       const confirmMsg = `✅ *APPROVED & PUBLISHED LIVE!*\n\n` +
         `🎉 Product *${approval.title}* is now live on *nnstore.shop*!\n\n` +
         `• *Action:* Published via ${actor}\n` +
@@ -628,7 +628,8 @@ class WhatsAppApprovalManager {
         `• *Live Link:* ${liveUrl}\n\n` +
         `🚀 Google & Bing sitemaps have been pinged for instant indexing.`;
 
-      await this.whatsappClient.sendTextMessage(this.adminPhone, confirmMsg);
+      const approvalImg = approval.payload?.imageUrl || approval.imageUrl || approval.details?.['Image'] || null;
+      await this.whatsappClient.sendTextMessage(this.adminPhone, confirmMsg, approvalImg);
 
       return {
         handled: true,

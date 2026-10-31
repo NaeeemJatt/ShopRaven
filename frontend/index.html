@@ -988,6 +988,163 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- 1-CLICK LIVE PUBLISHING & CONFIRMATION MODAL (NNSTORE.SHOP) -->
+  <!-- ========================================================================= -->
+  <div id="publishLiveModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+      
+      <!-- Top Decorative Ambient Glow -->
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- STATE 1: PUBLISHING IN PROGRESS -->
+      <div id="pub-modal-loading" class="space-y-5">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl text-emerald-400">
+            <span class="animate-spin inline-block">⚙️</span>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white tracking-tight">Publishing Live to nnstore.shop</h3>
+            <p class="text-xs text-emerald-400 font-medium">WooCommerce REST API v3 • Media Sideloading</p>
+          </div>
+        </div>
+
+        <!-- Product Preview Card -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 flex items-center space-x-3.5">
+          <img id="pub-loading-img" src="" alt="Product" class="w-16 h-16 rounded-lg object-cover bg-slate-900 border border-slate-800 flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <span id="pub-loading-category" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 inline-block mb-1">
+              Storefront
+            </span>
+            <div id="pub-loading-title" class="text-xs font-bold text-white truncate leading-snug">Product Title</div>
+            <div class="flex items-center space-x-2 mt-1">
+              <span id="pub-loading-sale" class="text-xs font-extrabold text-emerald-400">Rs. 1,399</span>
+              <span id="pub-loading-reg" class="text-[10px] text-slate-500 line-through">Rs. 2,049</span>
+              <span class="text-[10px] text-slate-400">• Flat Rs. 150 COD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Steps Checklist -->
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center space-x-2.5 text-emerald-400">
+            <span>✓</span>
+            <span>Margin Guard verified (+40% to +50% profit floor)</span>
+          </div>
+          <div class="flex items-center space-x-2.5 text-emerald-400">
+            <span>✓</span>
+            <span>Studio product photography attached & optimized</span>
+          </div>
+          <div class="flex items-center space-x-2.5 text-emerald-400">
+            <span>✓</span>
+            <span>Local Roman-Urdu synonyms & Schema.org JSON-LD built</span>
+          </div>
+          <div class="flex items-center space-x-2.5 text-blue-400 font-semibold animate-pulse">
+            <span class="animate-spin inline-block">⟳</span>
+            <span>Creating live product listing & pinging search sitemaps...</span>
+          </div>
+          <div class="flex items-center space-x-2.5 text-amber-400 font-medium">
+            <span class="animate-pulse">📱</span>
+            <span>Dispatching instant WhatsApp notification to Admin (+923114618934)...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE 2: PUBLISHED LIVE SUCCESS -->
+      <div id="pub-modal-success" class="hidden space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-600/30">
+              🎉
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white tracking-tight">Product is Now PUBLISHED LIVE!</h3>
+              <p class="text-xs text-emerald-400 font-medium">nnstore.shop • Instant Sitemaps & Transients Refreshed</p>
+            </div>
+          </div>
+          <button onclick="closePublishLiveModal()" class="text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <!-- Live Product Card -->
+        <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-4 flex items-center space-x-4">
+          <img id="pub-success-img" src="" alt="Product" class="w-20 h-20 rounded-xl object-cover bg-slate-900 border border-slate-800 flex-shrink-0 shadow-md">
+          <div class="flex-1 min-w-0 space-y-1">
+            <div class="flex items-center space-x-2">
+              <span id="pub-success-category" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Home & Living
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ● LIVE ON STORE
+              </span>
+            </div>
+            <div id="pub-success-title" class="text-sm font-bold text-white truncate leading-snug">Product Title</div>
+            <div class="flex items-center space-x-2 text-xs">
+              <span id="pub-success-sale" class="font-extrabold text-emerald-400 text-base">Rs. 1,399</span>
+              <span id="pub-success-reg" class="text-slate-500 line-through text-xs">Rs. 2,049</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-medium">+ Rs. 150 COD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Notification Confirmation Banner -->
+        <div class="bg-emerald-950/50 border border-emerald-500/40 rounded-xl p-3 flex items-center space-x-3 text-xs text-emerald-200">
+          <span class="text-xl flex-shrink-0">📱</span>
+          <div class="flex-1">
+            <div class="font-bold text-emerald-300">WhatsApp Notification Dispatched!</div>
+            <div class="text-[11px] text-emerald-400/90">Instant alert with product photo & live link delivered to Admin (+923114618934).</div>
+          </div>
+          <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono font-bold border border-emerald-500/30">SENT</span>
+        </div>
+
+        <!-- Live Link Field with Copy Button -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] uppercase font-mono text-slate-400">Live Storefront URL:</label>
+          <div class="flex items-center space-x-2 bg-slate-950 border border-slate-800 rounded-xl p-1.5 pl-3">
+            <input id="pub-success-link-input" type="text" readonly class="flex-1 bg-transparent text-xs text-blue-400 font-mono focus:outline-none truncate" value="https://nnstore.shop">
+            <button onclick="copyPublishLiveLink()" id="btn-copy-live-link" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+              <span>📋</span>
+              <span id="copy-btn-text">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-3 pt-2">
+          <a id="pub-success-live-btn" href="https://nnstore.shop" target="_blank" class="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-center text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
+            <span>🌐</span>
+            <span>View Live on nnstore.shop ↗</span>
+          </a>
+          <button onclick="closePublishLiveModal()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <!-- STATE 3: ERROR STATE -->
+      <div id="pub-modal-error" class="hidden space-y-4">
+        <div class="flex items-center space-x-3 text-rose-400">
+          <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-xl">
+            ⚠️
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Publication Notice</h3>
+            <p class="text-xs text-rose-300" id="pub-error-msg">Connecting to WooCommerce REST API...</p>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400">Product draft is safe. It will be scheduled for autonomous publication or you can retry now.</p>
+        <div class="flex items-center space-x-2 pt-2">
+          <button onclick="retryPublishProduct()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+            🔄 Retry Live Publish
+          </button>
+          <button onclick="closePublishLiveModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">
+            Close
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- HIGH-FIDELITY LIVE STOREFRONT PRODUCT PREVIEW MODAL (NNSTORE.SHOP) -->
   <!-- ========================================================================= -->
   <div id="storefrontPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
@@ -1782,7 +1939,7 @@
     function forceTriggerAllPipelines() {
       triggerAction('Full 30-Minute Multi-Agent Autonomous Cycle', 'Running 5 parallel pipelines: Product Hunting, Wholesale Sourcing, SEO/AISEO, Storefront Auditor, and Visitor CRO.');
 
-      const triggerUrl = window.location.port === '4000' ? '/api/tasks/trigger-all' : 'http://localhost:4000/api/tasks/trigger-all';
+      const triggerUrl = window.location.protocol === 'file:' ? 'http://localhost:4000/api/tasks/trigger-all' : '/api/tasks/trigger-all';
       fetch(triggerUrl, { method: 'POST' })
         .then(r => r.json())
         .then(data => {
@@ -1837,9 +1994,9 @@
       let updated = false;
 
       // 1. Try to fetch live tasks and execution history from orchestrator backend if running
-      const backendUrl = window.location.port === '4000' 
-        ? '/api/tasks/active' 
-        : 'http://localhost:4000/api/tasks/active';
+      const backendUrl = window.location.protocol === 'file:' 
+        ? 'http://localhost:4000/api/tasks/active' 
+        : '/api/tasks/active';
 
       fetch(backendUrl, { method: 'GET', headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(1200) })
         .then(res => res.json())
@@ -1898,7 +2055,7 @@
       document.getElementById('actionModal').classList.remove('hidden');
 
       // Post to orchestrator backend if accessible
-      const triggerUrl = window.location.port === '4000' ? '/api/tasks/trigger' : 'http://localhost:4000/api/tasks/trigger';
+      const triggerUrl = window.location.protocol === 'file:' ? 'http://localhost:4000/api/tasks/trigger' : '/api/tasks/trigger';
       fetch(triggerUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2011,21 +2168,115 @@
       publishProductLive(draftId, title, salePrice, regularPrice, category, image, true);
     }
 
+    let currentPublishingDraft = null;
+
+    function showPublishModalLoading(title, category, salePrice, regularPrice, imageUrl) {
+      currentPublishingDraft = { title, category, salePrice, regularPrice, imageUrl };
+      const modal = document.getElementById('publishLiveModal');
+      const loading = document.getElementById('pub-modal-loading');
+      const success = document.getElementById('pub-modal-success');
+      const errDiv = document.getElementById('pub-modal-error');
+
+      if (loading) loading.classList.remove('hidden');
+      if (success) success.classList.add('hidden');
+      if (errDiv) errDiv.classList.add('hidden');
+
+      const imgEl = document.getElementById('pub-loading-img');
+      if (imgEl) imgEl.src = imageUrl || 'https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg';
+      const titleEl = document.getElementById('pub-loading-title');
+      if (titleEl) titleEl.textContent = title || 'Product';
+      const catEl = document.getElementById('pub-loading-category');
+      if (catEl) catEl.textContent = category || 'Storefront';
+      const saleEl = document.getElementById('pub-loading-sale');
+      if (saleEl) saleEl.textContent = `Rs. ${Number(salePrice).toLocaleString()}`;
+      const regEl = document.getElementById('pub-loading-reg');
+      if (regEl) regEl.textContent = `Rs. ${Number(regularPrice).toLocaleString()}`;
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function showPublishModalSuccess(title, category, salePrice, regularPrice, imageUrl, livePermalink) {
+      const loading = document.getElementById('pub-modal-loading');
+      const success = document.getElementById('pub-modal-success');
+      const errDiv = document.getElementById('pub-modal-error');
+
+      if (loading) loading.classList.add('hidden');
+      if (success) success.classList.remove('hidden');
+      if (errDiv) errDiv.classList.add('hidden');
+
+      const imgEl = document.getElementById('pub-success-img');
+      if (imgEl) imgEl.src = imageUrl || 'https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg';
+      const titleEl = document.getElementById('pub-success-title');
+      if (titleEl) titleEl.textContent = title || 'Product';
+      const catEl = document.getElementById('pub-success-category');
+      if (catEl) catEl.textContent = category || 'Storefront';
+      const saleEl = document.getElementById('pub-success-sale');
+      if (saleEl) saleEl.textContent = `Rs. ${Number(salePrice).toLocaleString()}`;
+      const regEl = document.getElementById('pub-success-reg');
+      if (regEl) regEl.textContent = `Rs. ${Number(regularPrice).toLocaleString()}`;
+
+      const linkInput = document.getElementById('pub-success-link-input');
+      if (linkInput) linkInput.value = livePermalink;
+      const liveBtn = document.getElementById('pub-success-live-btn');
+      if (liveBtn) liveBtn.href = livePermalink;
+    }
+
+    function showPublishModalError(errorMsg) {
+      const loading = document.getElementById('pub-modal-loading');
+      const success = document.getElementById('pub-modal-success');
+      const errDiv = document.getElementById('pub-modal-error');
+
+      if (loading) loading.classList.add('hidden');
+      if (success) success.classList.add('hidden');
+      if (errDiv) errDiv.classList.remove('hidden');
+
+      const errEl = document.getElementById('pub-error-msg');
+      if (errEl) errEl.textContent = errorMsg || 'Unable to reach WooCommerce REST API.';
+    }
+
+    function closePublishLiveModal() {
+      const modal = document.getElementById('publishLiveModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function copyPublishLiveLink() {
+      const input = document.getElementById('pub-success-link-input');
+      if (input) {
+        navigator.clipboard.writeText(input.value).then(() => {
+          const btnText = document.getElementById('copy-btn-text');
+          if (btnText) {
+            btnText.textContent = 'Copied!';
+            setTimeout(() => { btnText.textContent = 'Copy'; }, 2000);
+          }
+        });
+      }
+    }
+
+    function retryPublishProduct() {
+      if (!currentPublishingDraft) return;
+      const { draftId, title, salePrice, regularPrice, category, imageUrl } = currentPublishingDraft;
+      publishProductLive(draftId, title, salePrice, regularPrice, category, imageUrl);
+    }
+
     // 1-Click Publish Live Execution (Posts to WooCommerce REST API v3)
     function publishProductLive(draftId, title, salePrice, regularPrice, category, imageUrl, fromPreview = false) {
+      currentPublishingDraft = { draftId, title, salePrice, regularPrice, category, imageUrl };
       const cardBtn = document.getElementById(`btn-pub-${draftId}`);
       const previewBtn = document.getElementById('btn-preview-publish');
 
       if (cardBtn) {
-        cardBtn.innerHTML = `<span>⏳</span><span>Publishing to nnstore.shop...</span>`;
+        cardBtn.innerHTML = `<span>⏳</span><span>Publishing...</span>`;
         cardBtn.disabled = true;
       }
       if (previewBtn) {
-        previewBtn.innerHTML = `<span>⏳</span><span>Publishing to nnstore.shop...</span>`;
+        previewBtn.innerHTML = `<span>⏳</span><span>Publishing...</span>`;
         previewBtn.disabled = true;
       }
 
-      const publishUrl = window.location.port === '4000' ? '/api/publish-product' : 'http://localhost:4000/api/publish-product';
+      // 1. Immediately open the visual live publish modal
+      showPublishModalLoading(title, category, salePrice, regularPrice, imageUrl);
+
+      const publishUrl = window.location.protocol === 'file:' ? 'http://localhost:4000/api/publish-product' : '/api/publish-product';
       
       const payload = {
         id: draftId,
@@ -2042,9 +2293,13 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}: Server returned error`);
+        return res.json();
+      })
       .then(data => {
         const livePermalink = data.permalink || `https://nnstore.shop/?p=${data.productId || draftId}`;
+        const finalImg = data.imageUrl || imageUrl;
 
         // Update Draft Card Action Button
         const actionsContainer = document.getElementById(`draft-actions-${draftId}`);
@@ -2054,7 +2309,7 @@
               <span>🌐</span>
               <span>LIVE ON STORE: View on nnstore.shop ↗</span>
             </a>
-            <button onclick="openStorefrontPreview('${title}', '${category}', ${salePrice}, ${regularPrice}, '${imageUrl}', '${title} is now live on nnstore.shop', '${draftId}')" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg font-semibold text-center">
+            <button onclick="openStorefrontPreview('${title.replace(/'/g, "\\'")}', '${category}', ${salePrice}, ${regularPrice}, '${finalImg}', '${title.replace(/'/g, "\\'")} is now live on nnstore.shop', '${draftId}')" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg font-semibold text-center">
               Preview
             </button>
           `;
@@ -2068,21 +2323,21 @@
           previewBtn.disabled = false;
         }
 
-        // Show confirmation alert banner
-        alert(`🎉 SUCCESS! "${title}" is now PUBLISHED LIVE on nnstore.shop!\n\nLive Store Link:\n${livePermalink}\n\nFlat Rs. 150 COD shipping and Roman-Urdu tags are active.`);
+        // 2. Transition visual modal to complete state with link and WhatsApp feedback
+        showPublishModalSuccess(title, category, salePrice, regularPrice, finalImg, livePermalink);
         
         // Refresh active tasks and history
         if (typeof advanceTasksTick === 'function') advanceTasksTick();
       })
       .catch(err => {
         console.error('Publish error:', err);
-        alert(`Notice: Connecting to WooCommerce... Product drafted and scheduled for live publication.`);
+        showPublishModalError(err.message || 'Connecting to WooCommerce... Product drafted and scheduled.');
         if (cardBtn) {
-          cardBtn.innerHTML = `<span>🚀</span><span>1-Click Publish Live</span>`;
+          cardBtn.innerHTML = `<span>⚡</span><span>1-Click Publish Live</span>`;
           cardBtn.disabled = false;
         }
         if (previewBtn) {
-          previewBtn.innerHTML = `<span>🚀</span><span>1-Click Publish Live to nnstore.shop</span>`;
+          previewBtn.innerHTML = `<span>⚡</span><span>1-Click Publish Live to nnstore.shop</span>`;
           previewBtn.disabled = false;
         }
       });

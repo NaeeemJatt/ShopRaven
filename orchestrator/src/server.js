@@ -906,25 +906,36 @@ app.post(['/api/publish-draft/:id', '/api/publish-product'], async (req, res) =>
       });
     } catch (e) {}
 
-    // Notify Admin on WhatsApp that 1-Click Publish Action was executed
+    // Instant LiteSpeed cache & WooCommerce transient invalidation for immediate storefront refresh
     try {
-      whatsappClient.notifyAdminAction(
-        '1-Click Live Publish',
-        `Product "${result.name || productData.title}" is now PUBLISHED LIVE on nnstore.shop!`,
-        {
-          'Product ID': liveId,
-          'Title': result.name || productData.title,
-          'Sale Price': `Rs. ${result.sale_price || productData.sale_price || '1,399'}`,
-          'Courier Fee': 'Flat Rs. 150 separate',
-          'Live Store URL': liveUrl
-        }
-      );
+      fetch('https://nnstore.shop/', { headers: { 'x-litespeed-purge': '*' } }).catch(() => {});
+      await publisher.wcClient.put('/system_status/tools/clear_transients').catch(() => {});
     } catch (e) {}
+
+    // Notify Admin on WhatsApp with instant high-priority photo alert
+    let waNotified = false;
+    try {
+      const waRes = await whatsappClient.notifyProductPublished({
+        id: liveId,
+        title: result.name || productData.title || `Product #${liveId}`,
+        salePrice: result.sale_price || productData.sale_price || productData.salePrice || '1,399',
+        regularPrice: result.regular_price || productData.regular_price || productData.regularPrice || '2,049',
+        category: (result.categories && result.categories[0]?.name) || productData.category || 'Storefront',
+        liveUrl: liveUrl,
+        imageUrl: safeImgUrl
+      });
+      waNotified = waRes?.success || false;
+      console.log(`[WhatsApp] Instant live publish notification sent for "${result.name || productData.title}" (result: ${waNotified})`);
+    } catch (waErr) {
+      console.error('[WhatsApp Publish Alert Error]:', waErr.message);
+    }
 
     return res.json({
       status: 'published',
       productId: liveId,
       permalink: liveUrl,
+      imageUrl: safeImgUrl,
+      whatsappNotified: waNotified,
       product: result
     });
   } catch (err) {
