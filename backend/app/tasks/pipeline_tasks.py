@@ -57,7 +57,14 @@ def execute_autonomous_product_pipeline(keyword: str, category: str) -> Dict[str
         ready_package = seo_engine.generate_package(winning_offer, pricing_package, category)
 
         # Step 7: Hand-off payload to Node.js Orchestrator
-        orchestrator_url = f"{settings.ORCHESTRATOR_URL}/api/notify"
+        candidate_urls = [
+            settings.ORCHESTRATOR_URL,
+            settings.NODE_ORCHESTRATOR_URL,
+            "http://shopraven-orchestrator:4000",
+            "http://localhost:4000",
+            "http://127.0.0.1:4000",
+        ]
+        delivered = False
         payload = {
             "step": "PIPELINE_COMPLETE",
             "keyword": keyword,
@@ -68,14 +75,22 @@ def execute_autonomous_product_pipeline(keyword: str, category: str) -> Dict[str
             "processed_images": processed_images,
         }
 
-        try:
-            requests.post(orchestrator_url, json=payload, timeout=5)
-        except Exception:
-            pass
+        for base in dict.fromkeys(candidate_urls):
+            if not base:
+                continue
+            orchestrator_url = f"{base.rstrip('/')}/api/notify"
+            try:
+                resp = requests.post(orchestrator_url, json=payload, timeout=10)
+                if resp.status_code == 200:
+                    delivered = True
+                    break
+            except Exception:
+                continue
 
         return {
-            "status": "SUCCESS",
+            "status": "SUCCESS" if delivered else "NOTIFIED_PENDING",
             "keyword": keyword,
+            "delivered_to_orchestrator": delivered,
             "wholesale_cost": winning_offer.wholesale_cost_pkr,
             "sale_price": pricing_package.recommended_sale_price,
             "regular_price": pricing_package.recommended_regular_price,
@@ -99,18 +114,28 @@ def run_market_scout_task():
             execute_autonomous_product_pipeline.delay(m.keyword, m.category_name)
         
         # Report status to orchestrator
-        try:
-            requests.post(
-                f"{settings.ORCHESTRATOR_URL}/api/tasks/scout-report",
-                json={
-                    "total_scanned": len(discovered),
-                    "missing_count": len(missing),
-                    "top_winners": [m.keyword for m in missing]
-                },
-                timeout=5
-            )
-        except Exception:
-            pass
+        candidate_urls = [
+            settings.ORCHESTRATOR_URL,
+            settings.NODE_ORCHESTRATOR_URL,
+            "http://shopraven-orchestrator:4000",
+            "http://localhost:4000",
+        ]
+        for base in dict.fromkeys(candidate_urls):
+            if not base:
+                continue
+            try:
+                requests.post(
+                    f"{base.rstrip('/')}/api/tasks/scout-report",
+                    json={
+                        "total_scanned": len(discovered),
+                        "missing_count": len(missing),
+                        "top_winners": [m.keyword for m in missing]
+                    },
+                    timeout=5
+                )
+                break
+            except Exception:
+                continue
 
         return {"scanned": len(discovered), "triggered": len(missing)}
     finally:

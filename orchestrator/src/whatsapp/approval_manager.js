@@ -69,7 +69,7 @@ class WhatsAppApprovalManager {
     if (!p) return '';
     let c = String(p).replace(/[^0-9]/g, '');
     if (c.startsWith('03')) c = '92' + c.slice(1);
-    if (!c.startsWith('+')) c = '+' + c;
+    else if (c.startsWith('3') && c.length === 10) c = '92' + c;
     return c;
   }
 

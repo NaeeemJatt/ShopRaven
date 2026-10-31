@@ -48,6 +48,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/shopraven
       REDIS_URL: redis://redis:6379/0
+      ORCHESTRATOR_URL: http://shopraven-orchestrator:4000
+      NODE_ORCHESTRATOR_URL: http://shopraven-orchestrator:4000
     ports:
       - "8000:8000"
     volumes:
@@ -66,6 +68,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/shopraven
       REDIS_URL: redis://redis:6379/0
+      ORCHESTRATOR_URL: http://shopraven-orchestrator:4000
+      NODE_ORCHESTRATOR_URL: http://shopraven-orchestrator:4000
     volumes:
       - ./backend:/app
 

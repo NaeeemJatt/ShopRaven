@@ -30,7 +30,8 @@ class WhatsAppCloudClient {
     } else if (cleaned.startsWith('3') && cleaned.length === 10) {
       cleaned = '92' + cleaned;
     }
-    return '+' + cleaned;
+    // Return standard E.164 digits without leading '+' for WhatsApp/Wasender Baileys compatibility
+    return cleaned;
   }
 
   /**
@@ -43,10 +44,10 @@ class WhatsAppCloudClient {
       throw new Error('Invalid phone number provided');
     }
 
-    // 1. Prioritize WasenderAPI
+    // 1. Prioritize WasenderAPI (requires pure digits e.g. 923114618934)
     if (this.wasenderToken) {
       try {
-        const payload = { to, text: bodyText };
+        const payload = { to: to.replace(/^\+/, ''), text: bodyText };
         if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
           payload.imageUrl = imageUrl;
         }

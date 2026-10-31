@@ -2,8 +2,8 @@
 Endpoints for Pakistani market research and trending keyword scans.
 """
 
-from typing import List
-from fastapi import APIRouter, Depends
+from typing import List, Dict, Any, Optional
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.trend_keyword import TrendKeyword
@@ -15,13 +15,22 @@ router = APIRouter()
 
 @router.post("/scan", response_model=MarketScanResponse)
 def trigger_market_scan(db: Session = Depends(get_db)):
-    """Triggers an immediate multi-source Pakistani market scan."""
+    """Triggers an immediate multi-source Pakistani market scan and dispatches pipeline for missing items."""
     scanner = SearchDemandScanner()
     saved = scanner.run_full_market_scan(db)
 
     total_scanned = len(saved)
     new_opps = sum(1 for item in saved if not item.exists_in_store)
     already_store = total_scanned - new_opps
+
+    # Automatically dispatch autonomous sourcing pipeline for top missing opportunities
+    missing = [item for item in saved if not item.exists_in_store][:3]
+    for m in missing:
+        try:
+            from app.tasks.pipeline_tasks import execute_autonomous_product_pipeline
+            execute_autonomous_product_pipeline.delay(m.keyword, m.category_name)
+        except Exception:
+            pass
 
     top_items = [TrendItemSchema.model_validate(item) for item in saved[:15]]
 
@@ -31,6 +40,24 @@ def trigger_market_scan(db: Session = Depends(get_db)):
         already_in_store_count=already_store,
         top_opportunities=top_items,
     )
+
+
+@router.post("/hunt")
+def trigger_product_hunt(payload: Dict[str, Any] = Body(...)):
+    """Dispatches an on-demand autonomous product hunting and sourcing pipeline."""
+    keyword = payload.get("keyword") or payload.get("target")
+    category = payload.get("category", "General Store")
+    if not keyword:
+        raise HTTPException(status_code=400, detail="Keyword is required")
+
+    from app.tasks.pipeline_tasks import execute_autonomous_product_pipeline
+    task = execute_autonomous_product_pipeline.delay(keyword, category)
+    return {
+        "status": "DISPATCHED",
+        "task_id": task.id,
+        "keyword": keyword,
+        "category": category
+    }
 
 
 @router.get("/trends", response_model=List[TrendItemSchema])

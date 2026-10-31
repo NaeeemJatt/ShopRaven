@@ -405,6 +405,11 @@ app.post('/api/tasks/trigger-all', (req, res) => {
     t.startedAt = now;
   });
 
+  // Dispatch real Python backend market scan and chained sourcing pipeline
+  axios.post(`${CONFIG.PYTHON_BACKEND_URL}/api/v1/research/scan`).catch(err => {
+    console.error('[TriggerAll Python Backend Error]:', err.message);
+  });
+
   // Notify Admin on WhatsApp
   whatsappClient.notifyAdminAction(
     'All 5 Autonomous Pipelines Triggered',
@@ -450,6 +455,11 @@ app.post('/api/tasks/trigger', (req, res) => {
     ]
   };
   tasksRegistry.unshift(newTask);
+
+  // Dispatch real Python backend on-demand sourcing pipeline
+  axios.post(`${CONFIG.PYTHON_BACKEND_URL}/api/v1/research/hunt`, { keyword: targetName, category: newTask.category }).catch(err => {
+    console.error('[Trigger Python Backend Error]:', err.message);
+  });
 
   // Notify Admin on WhatsApp
   whatsappClient.notifyAdminAction(
@@ -532,6 +542,12 @@ const approvalManager = new WhatsAppApprovalManager(whatsappClient, publisher, (
       t.status = 'RUNNING';
       t.startedAt = now;
     });
+
+    // Dispatch real Python backend market scan and chained sourcing pipeline
+    axios.post(`${CONFIG.PYTHON_BACKEND_URL}/api/v1/research/scan`).catch(err => {
+      console.error('[TriggerAll Python Backend Error]:', err.message);
+    });
+
     return { automationState, tasksRegistry };
   },
   triggerHunt: (keyword, category = 'General Trending') => {
@@ -557,6 +573,17 @@ const approvalManager = new WhatsAppApprovalManager(whatsappClient, publisher, (
       ]
     };
     tasksRegistry.unshift(newTask);
+
+  // Dispatch real Python backend on-demand sourcing pipeline
+  axios.post(`${CONFIG.PYTHON_BACKEND_URL}/api/v1/research/hunt`, { keyword: targetName, category: newTask.category }).catch(err => {
+    console.error('[Trigger Python Backend Error]:', err.message);
+  });
+
+    // Dispatch real Python backend on-demand sourcing pipeline
+    axios.post(`${CONFIG.PYTHON_BACKEND_URL}/api/v1/research/hunt`, { keyword, category }).catch(err => {
+      console.error('[TriggerHunt Python Backend Error]:', err.message);
+    });
+
     return newTask;
   }
 }));

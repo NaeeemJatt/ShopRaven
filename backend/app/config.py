@@ -27,7 +27,19 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(default="shopraven-secure-key-2026")
     BACKEND_HOST: str = Field(default="0.0.0.0")
     BACKEND_PORT: int = Field(default=8000)
-    ORCHESTRATOR_URL: str = Field(default="http://localhost:4000")
+    ORCHESTRATOR_URL: str = Field(default="http://shopraven-orchestrator:4000")
+    NODE_ORCHESTRATOR_URL: str = Field(default="http://shopraven-orchestrator:4000")
+
+    @field_validator("ORCHESTRATOR_URL", mode="before")
+    @classmethod
+    def resolve_orchestrator_url(cls, v):
+        import os
+        return (
+            os.getenv("ORCHESTRATOR_URL")
+            or os.getenv("NODE_ORCHESTRATOR_URL")
+            or v
+            or "http://shopraven-orchestrator:4000"
+        )
 
     # Database & Redis
     DATABASE_URL: str = Field(
