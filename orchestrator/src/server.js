@@ -717,26 +717,29 @@ function resolveCategoryIds(categoryName = '', title = '') {
 
 // Helper to ensure image URLs pass WordPress's strict media_sideload_image validation and accurately match products
 function resolveSafeImageUrl(rawUrl, category = '', title = '') {
-  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http')) {
-    // If it's already an uploaded file on nnstore.shop or an Unsplash direct image, use it!
-    if (rawUrl.includes('nnstore.shop/wp-content/uploads/') || rawUrl.includes('images.unsplash.com')) {
-      return rawUrl;
-    }
-    const cleanPath = rawUrl.split('?')[0];
-    if (/\.(jpe?g|png|webp)\b/i.test(cleanPath) && !rawUrl.includes('pexels.com')) {
-      return rawUrl;
-    }
-  }
-
-  // Guaranteed verified product photos accurately matching title and category
   const text = ((category || '') + ' ' + (title || '')).toLowerCase();
 
-  // 1. Specific High-Velocity Trending Products
+  // 1. Strict semantic match for known products to prevent cross-product image mix-ups
+  if (text.includes('scrubber') || text.includes('pore cleaner') || text.includes('skin scrubber')) {
+    return 'https://nnstore.shop/wp-content/uploads/2026/10/ultrasonic_skin_scrubber_1793319459490.jpg';
+  }
   if (text.includes('sunset') || text.includes('rgb lamp') || text.includes('projection light')) {
     return 'https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg';
   }
-  if (text.includes('scrubber') || text.includes('pore cleaner') || text.includes('skin scrubber')) {
-    return 'https://nnstore.shop/wp-content/uploads/2026/10/ultrasonic_skin_scrubber_1793319459490.jpg';
+
+  // 2. Validate incoming rawUrl if provided
+  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http')) {
+    const isSunsetImg = rawUrl.includes('sunset_lamp');
+    const isSunsetProduct = text.includes('sunset') || text.includes('lamp');
+    if (!isSunsetImg || isSunsetProduct) {
+      if (rawUrl.includes('nnstore.shop/wp-content/uploads/') || rawUrl.includes('images.unsplash.com')) {
+        return rawUrl;
+      }
+      const cleanPath = rawUrl.split('?')[0];
+      if (/\.(jpe?g|png|webp)\b/i.test(cleanPath) && !rawUrl.includes('pexels.com')) {
+        return rawUrl;
+      }
+    }
   }
   if (text.includes('chopper') || text.includes('cutter') || text.includes('blender') || text.includes('garlic')) {
     return 'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=800&auto=format&fit=crop&q=80';
