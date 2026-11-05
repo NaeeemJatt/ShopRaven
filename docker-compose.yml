@@ -85,6 +85,8 @@ services:
       - .env
     environment:
       PYTHON_BACKEND_URL: http://shopraven-backend:8000
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://52.65.208.69}
+      BASE_PUBLIC_URL: ${BASE_PUBLIC_URL:-http://52.65.208.69}
     ports:
       - "4000:4000"
       - "80:4000"

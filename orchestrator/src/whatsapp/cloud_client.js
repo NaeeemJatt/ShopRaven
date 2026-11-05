@@ -136,7 +136,8 @@ class WhatsAppCloudClient {
     }
 
     const timestamp = new Date().toLocaleTimeString('en-PK', { timeZone: 'Asia/Karachi' });
-    const message = `⚡ *ShopRaven Action Executed*\n\n📌 *Action:* ${actionTitle}\n📝 *Summary:* ${summary}\n${fieldsText ? '\n' + fieldsText : ''}⏱ *Time:* ${timestamp} PKT\n🌐 *Store:* ${CONFIG.WC_STORE_URL}\n🎛 *Dashboard:* http://localhost:4000/`;
+    const dashboardUrl = `${CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69'}/`;
+    const message = `⚡ *ShopRaven Action Executed*\n\n📌 *Action:* ${actionTitle}\n📝 *Summary:* ${summary}\n${fieldsText ? '\n' + fieldsText : ''}⏱ *Time:* ${timestamp} PKT\n🌐 *Store:* ${CONFIG.WC_STORE_URL}\n🎛 *Dashboard:* ${dashboardUrl}`;
 
     try {
       console.log(`[WhatsApp Admin] Alerting ${this.adminPhone}: ${actionTitle}`);
@@ -188,7 +189,8 @@ class WhatsAppCloudClient {
     }
 
     const timestamp = new Date().toLocaleTimeString('en-PK', { timeZone: 'Asia/Karachi' });
-    const message = `🚨 *ShopRaven: Approval Required*\n\n📌 *Item:* ${approvalTitle}\n📋 *Details:* ${description}\n${fieldsText ? '\n' + fieldsText : ''}\n👉 *Action Required:* Open Control Room to review and approve.\n🎛 *Dashboard:* http://localhost:4000/\n⏱ *Time:* ${timestamp} PKT`;
+    const dashboardUrl = `${CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69'}/`;
+    const message = `🚨 *ShopRaven: Approval Required*\n\n📌 *Item:* ${approvalTitle}\n📋 *Details:* ${description}\n${fieldsText ? '\n' + fieldsText : ''}\n👉 *Action Required:* Open Control Room to review and approve.\n🎛 *Dashboard:* ${dashboardUrl}\n⏱ *Time:* ${timestamp} PKT`;
 
     try {
       console.log(`[WhatsApp Approval] Alerting ${this.adminPhone}: ${approvalTitle}`);

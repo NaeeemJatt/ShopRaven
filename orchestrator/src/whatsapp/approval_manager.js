@@ -18,12 +18,13 @@ const crypto = require('crypto');
 const { CONFIG, NNSTORE_CATEGORIES } = require('../config/env');
 
 class WhatsAppApprovalManager {
-  constructor(whatsappClient, productPublisher, stateProvider = null) {
+  constructor(whatsappClient, productPublisher, stateProvider = null, baseUrl = null) {
     this.whatsappClient = whatsappClient;
     this.publisher = productPublisher;
     this.stateProvider = stateProvider;
     this.adminPhone = CONFIG.ADMIN_WHATSAPP_NUMBER || '+923114618934';
-    this.baseUrl = process.env.BASE_PUBLIC_URL || 'http://52.65.208.69';
+    const rawBaseUrl = baseUrl || process.env.PUBLIC_APP_URL || process.env.BASE_PUBLIC_URL || process.env.BASE_URL || CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69';
+    this.baseUrl = String(rawBaseUrl).replace(/\/+$/, '');
     this.autoApproveMinutes = Number(process.env.AUTO_APPROVE_MINUTES) || 20;
 
     // Store active approval requests in memory
@@ -143,7 +144,8 @@ class WhatsAppApprovalManager {
       `👉 Or Reply *APPROVE ${shortCode}*\n` +
       `👉 Reply *REJECT* (to cancel)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `⏱ *Sent:* ${timestamp} PKT | nnstore.shop`;
+      `⏱ *Sent:* ${timestamp} PKT | nnstore.shop\n` +
+      `🎛 *Control Room:* ${this.baseUrl}/`;
   }
 
   /**
@@ -340,7 +342,8 @@ class WhatsAppApprovalManager {
     }
 
     msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `💡 *Quick Action:* Reply *HUNT [product]* to launch an instant search!`;
+      `💡 *Quick Action:* Reply *HUNT [product]* to launch an instant search!\n` +
+      `🎛 *Control Room:* ${this.baseUrl}/`;
 
     console.log(`[WhatsApp Status] Dispatching executive dashboard briefing to ${this.adminPhone}...`);
     await this.whatsappClient.sendTextMessage(this.adminPhone, msg);

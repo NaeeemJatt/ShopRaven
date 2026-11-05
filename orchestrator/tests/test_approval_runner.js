@@ -307,4 +307,36 @@ test('WhatsApp Approval Manager & Status Dashboard Test Suite', async (t) => {
     assert.strictEqual(lastSent.imageUrl, testImgUrl);
     assert.ok(lastSent.text.includes('Smart Sunset Lamp with Photo'));
   });
+
+  await t.test('14. Ensures WhatsApp approval and alert messages contain production public URL and zero localhost links', async () => {
+    // Check all messages sent by WhatsAppApprovalManager
+    for (const msg of sentMessages) {
+      assert.ok(!msg.text.includes('localhost:4000'), `Message contains localhost:4000: ${msg.text}`);
+      assert.ok(!msg.text.includes('127.0.0.1'), `Message contains 127.0.0.1: ${msg.text}`);
+      if (msg.text.includes('quick-approve')) {
+        assert.ok(msg.text.includes('http://52.65.208.69/api/approvals/quick-approve'));
+      }
+      if (msg.text.includes('Control Room:')) {
+        assert.ok(msg.text.includes('http://52.65.208.69/'));
+      }
+    }
+
+    // Verify WhatsAppCloudClient notifyAdminAction and notifyAdminApproval
+    const WhatsAppCloudClient = require('../src/whatsapp/cloud_client');
+    const cloudClient = new WhatsAppCloudClient();
+    let cloudSent = [];
+    cloudClient.sendTextMessage = async (to, text, img = null) => {
+      cloudSent.push({ to, text, img });
+      return { success: true };
+    };
+
+    await cloudClient.notifyAdminAction('Test Action', 'Test Summary', { 'Metric': '100' });
+    await cloudClient.notifyAdminApproval('Test Item', 'Test Desc', { 'Draft': '#999' });
+
+    assert.strictEqual(cloudSent.length, 2);
+    for (const item of cloudSent) {
+      assert.ok(!item.text.includes('localhost:4000'), `CloudClient message contains localhost: ${item.text}`);
+      assert.ok(item.text.includes('http://52.65.208.69/'), `CloudClient message missing production URL: ${item.text}`);
+    }
+  });
 });

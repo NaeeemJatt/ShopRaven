@@ -1217,7 +1217,7 @@ if (process.env.NODE_ENV !== 'test') {
   startScheduledJobs();
   app.listen(CONFIG.PORT, () => {
     console.log(`🚀 ShopRaven Orchestrator listening on port ${CONFIG.PORT}`);
-    console.log(`🌐 Control Room Dashboard mounted at http://localhost:${CONFIG.PORT}/nnstore_ai_dashboard.html`);
+    console.log(`🌐 Control Room Dashboard: ${CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69'}/nnstore_ai_dashboard.html (Local: http://localhost:${CONFIG.PORT}/)`);
   });
 }
 
