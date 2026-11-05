@@ -178,7 +178,7 @@
             <div class="font-bold text-white text-sm">⚡ Sourcing & Listing Creator</div>
             <p class="text-slate-400 text-[11px]">Searches Oshi & HHC wholesale portals, enforces +40%-50% margin & Rs. 150 COD flat, standardizes 1080x1080 canvas & drafts product.</p>
             <div class="text-[10px] font-mono text-blue-300 pt-1 border-t border-slate-800/80">➔ Triggered immediately by Engine 1</div>
-            <button onclick="promptCustomKeywordPipeline()" class="w-full py-1.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white rounded-lg text-[11px] font-semibold transition">
+            <button onclick="openSourceProductModal()" class="w-full py-1.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white rounded-lg text-[11px] font-semibold transition">
               ▶ Source Specific Item
             </button>
           </div>
@@ -582,13 +582,14 @@
         <div>
           <h2 class="text-lg font-bold text-white flex items-center space-x-2">
             <span>📦 Finalized Drafts Ready for 1-Click Live Publishing</span>
-            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Live WooCommerce Sync</span>
+            <span id="drafts-count-badge" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">4 Pending Approvals</span>
           </h2>
           <p class="text-xs text-slate-400">Open across any category (Beauty, Baby, Kitchen, Auto, Pets, Living). Generated with 1080x1080 studio images, RankMath SEO, Roman-Urdu synonyms, and Schema.org JSON-LD.</p>
         </div>
         <div class="flex items-center space-x-2">
-          <button onclick="promptCustomKeywordPipeline()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-            + Source New Product (Any Category)
+          <button onclick="openSourceProductModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center space-x-1.5">
+            <span>🎯</span>
+            <span>+ Source New Product (Any Category)</span>
           </button>
         </div>
       </div>
@@ -1141,6 +1142,143 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SOURCE & HUNT PRODUCT MODAL (REPLACES BROWSER PROMPT) -->
+  <!-- ========================================================================= -->
+  <div id="sourceProductModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div class="bg-slate-900 border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+      <!-- Ambient decorative glow -->
+      <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-xl text-blue-400">
+            🎯
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white tracking-tight">Source & Hunt New Product</h3>
+            <p class="text-xs text-blue-400">Autonomous Dual-Supplier Sourcing • HHC vs Oshi Wholesale Match</p>
+          </div>
+        </div>
+        <button onclick="closeSourceProductModal()" class="text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+      </div>
+
+      <!-- Form Body -->
+      <div class="space-y-4 text-xs">
+        <!-- Category selector -->
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1.5">Official Store Category:</label>
+          <select id="source-product-category" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-slate-200 text-xs focus:outline-none focus:border-blue-500">
+            <option value="Beauty & Care">Beauty & Care</option>
+            <option value="Kitchen Accessories">Kitchen Accessories</option>
+            <option value="Home & Living">Home & Living</option>
+            <option value="Gym Accessories">Gym Accessories</option>
+            <option value="Electronic Accessories">Electronic Accessories</option>
+            <option value="Auto & Tools">Auto & Tools</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+        </div>
+
+        <!-- Keyword input -->
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1.5">Product Name or Search Keyword:</label>
+          <input id="source-product-keyword" type="text" placeholder="e.g. Electric Hand Blender Rechargeable" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-blue-500" value="Electric Hand Blender Rechargeable">
+        </div>
+
+        <!-- Quick Trending Suggestions Chips -->
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1.5 text-[11px] uppercase tracking-wider">Trending Pakistani Product Ideas (Tap to fill):</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setSourceKeyword('Electric Garlic Chopper Rechargeable', 'Kitchen Accessories')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] border border-slate-700 transition">
+              ⚡ Garlic Chopper
+            </button>
+            <button type="button" onclick="setSourceKeyword('Smart Ambient Sunset RGB Lamp', 'Home & Living')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] border border-slate-700 transition">
+              🌅 Sunset Lamp RGB
+            </button>
+            <button type="button" onclick="setSourceKeyword('Wireless Smart Sensor Car Charger Mount', 'Auto & Tools')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] border border-slate-700 transition">
+              🚗 Car Charger Mount
+            </button>
+            <button type="button" onclick="setSourceKeyword('Ultrasonic Aroma Diffuser Humidifier 500ml', 'Home & Living')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] border border-slate-700 transition">
+              🌿 Aroma Diffuser
+            </button>
+            <button type="button" onclick="setSourceKeyword('Baby Safe Electric Nail Trimmer Clipper', 'Accessories')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] border border-slate-700 transition">
+              👶 Baby Nail Trimmer
+            </button>
+          </div>
+        </div>
+
+        <!-- Guardrails info -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-1.5 text-[11px] text-slate-400">
+          <div class="flex items-center space-x-2 text-emerald-400 font-semibold">
+            <span>🛡️</span>
+            <span>+40% to +50% Profit Corridor strictly enforced</span>
+          </div>
+          <div class="flex items-center space-x-2 text-blue-400">
+            <span>🚚</span>
+            <span>Flat Rs. 150 COD shipping isolated across Pakistan</span>
+          </div>
+          <div class="flex items-center space-x-2 text-purple-400">
+            <span>📐</span>
+            <span>1080x1080 studio image canvas & Roman-Urdu tags built</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center space-x-3 pt-2">
+        <button onclick="submitSourceProductModal()" class="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2">
+          <span>🚀</span>
+          <span>Launch Sourcing Pipeline</span>
+        </button>
+        <button onclick="closeSourceProductModal()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- UNIVERSAL RESPONSE & ACTION NOTICE MODAL (REPLACES BROWSER ALERTS) -->
+  <!-- ========================================================================= -->
+  <div id="universalNoticeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+      <!-- Ambient light -->
+      <div id="notice-modal-glow" class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- Header with Icon & Close -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div id="notice-modal-icon-box" class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-xl text-blue-400">
+            <span id="notice-modal-icon">ℹ️</span>
+          </div>
+          <div>
+            <h3 id="notice-modal-title" class="text-base font-bold text-white tracking-tight">System Notice</h3>
+            <span id="notice-modal-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              DISPATCHED
+            </span>
+          </div>
+        </div>
+        <button onclick="closeNoticeModal()" class="text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+      </div>
+
+      <!-- Content Details -->
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 space-y-2">
+        <p id="notice-modal-message" class="leading-relaxed whitespace-pre-line">Action executed successfully.</p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center space-x-3 pt-2">
+        <button id="notice-modal-primary-btn" onclick="closeNoticeModal()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-blue-600/30">
+          OK
+        </button>
+        <button id="notice-modal-secondary-btn" onclick="closeNoticeModal()" class="hidden px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">
+          Dismiss
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2064,9 +2202,178 @@
     }
 
     function promptCustomKeywordPipeline() {
-      const keyword = prompt("Enter the Pakistani product keyword to source (e.g., 'Rechargeable Garlic Chopper' or 'Derma Roller'):", "Electric Hand Blender Rechargeable");
-      if (keyword) {
-        triggerAction(`Autonomous Sourcing: "${keyword}"`, `Comparing HHC and Oshi wholesale prices, generating 1080x1080 studio images, and creating a WooCommerce draft with Roman-Urdu tags.`);
+      openSourceProductModal();
+    }
+
+    function openSourceProductModal(prefillKeyword = '', prefillCategory = 'Beauty & Care') {
+      const modal = document.getElementById('sourceProductModal');
+      if (!modal) return;
+      if (prefillKeyword) {
+        document.getElementById('source-product-keyword').value = prefillKeyword;
+      }
+      if (prefillCategory) {
+        document.getElementById('source-product-category').value = prefillCategory;
+      }
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('source-product-keyword')?.focus();
+      }, 100);
+    }
+
+    function closeSourceProductModal() {
+      const modal = document.getElementById('sourceProductModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function setSourceKeyword(kw, cat) {
+      document.getElementById('source-product-keyword').value = kw;
+      if (cat) document.getElementById('source-product-category').value = cat;
+    }
+
+    function submitSourceProductModal() {
+      const keyword = (document.getElementById('source-product-keyword').value || '').trim();
+      const category = document.getElementById('source-product-category').value || 'Beauty & Care';
+      
+      if (!keyword) {
+        showNoticeModal({
+          title: 'Product Keyword Required',
+          message: 'Please enter a product name or Pakistani trend keyword to start autonomous sourcing.',
+          badge: 'INPUT NEEDED',
+          type: 'warning'
+        });
+        return;
+      }
+
+      closeSourceProductModal();
+      triggerAction(`Autonomous Sourcing: "${keyword}"`, `Matching HHC & Oshi wholesale prices for "${category}", calculating +40% margin corridor, standardizing 1080x1080 canvas, and generating Roman-Urdu tags.`);
+    }
+
+    // Universal Notice & Feedback Modal (Replaces browser alerts)
+    function showNoticeModal(options) {
+      const { 
+        title = 'System Notice', 
+        message = '', 
+        badge = 'ACTION DISPATCHED', 
+        type = 'info', 
+        icon = null, 
+        primaryBtnText = 'Got It', 
+        onPrimary = null, 
+        secondaryBtnText = null, 
+        onSecondary = null 
+      } = options || {};
+
+      const modal = document.getElementById('universalNoticeModal');
+      if (!modal) return;
+
+      document.getElementById('notice-modal-title').textContent = title;
+      document.getElementById('notice-modal-message').textContent = message;
+      
+      const badgeEl = document.getElementById('notice-modal-badge');
+      const iconBox = document.getElementById('notice-modal-icon-box');
+      const iconEl = document.getElementById('notice-modal-icon');
+      const glowEl = document.getElementById('notice-modal-glow');
+      const primBtn = document.getElementById('notice-modal-primary-btn');
+      const secBtn = document.getElementById('notice-modal-secondary-btn');
+
+      badgeEl.textContent = badge;
+
+      if (type === 'success') {
+        iconEl.textContent = icon || '🎉';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl text-emerald-400';
+        badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        glowEl.className = 'absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none';
+        primBtn.className = 'flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/30';
+      } else if (type === 'error') {
+        iconEl.textContent = icon || '⚠️';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-xl text-rose-400';
+        badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        glowEl.className = 'absolute -top-12 -right-12 w-32 h-32 bg-rose-500/20 rounded-full blur-2xl pointer-events-none';
+        primBtn.className = 'flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-rose-600/30';
+      } else if (type === 'warning') {
+        iconEl.textContent = icon || '⚡';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl text-amber-400';
+        badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        glowEl.className = 'absolute -top-12 -right-12 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none';
+        primBtn.className = 'flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-amber-600/30';
+      } else {
+        iconEl.textContent = icon || 'ℹ️';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-xl text-blue-400';
+        badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30';
+        glowEl.className = 'absolute -top-12 -right-12 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl pointer-events-none';
+        primBtn.className = 'flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-blue-600/30';
+      }
+
+      primBtn.textContent = primaryBtnText;
+      primBtn.onclick = function() {
+        closeNoticeModal();
+        if (typeof onPrimary === 'function') onPrimary();
+      };
+
+      if (secondaryBtnText) {
+        secBtn.textContent = secondaryBtnText;
+        secBtn.classList.remove('hidden');
+        secBtn.onclick = function() {
+          closeNoticeModal();
+          if (typeof onSecondary === 'function') onSecondary();
+        };
+      } else {
+        secBtn.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeNoticeModal() {
+      const modal = document.getElementById('universalNoticeModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Intercept native browser alert and prompt calls to use sleek modals
+    window.alert = function(msg) {
+      const msgStr = String(msg || '');
+      const isErr = msgStr.toLowerCase().includes('error') || msgStr.toLowerCase().includes('failed');
+      const isSuccess = msgStr.toLowerCase().includes('success') || msgStr.toLowerCase().includes('live');
+      showNoticeModal({
+        title: isErr ? 'System Notice' : (isSuccess ? 'Action Successful' : 'ShopRaven System Alert'),
+        message: msgStr,
+        badge: isErr ? 'ACTION NOTICE' : (isSuccess ? 'COMPLETED' : 'SYSTEM UPDATE'),
+        type: isErr ? 'error' : (isSuccess ? 'success' : 'info')
+      });
+    };
+
+    window.prompt = function(msg, defaultVal) {
+      openSourceProductModal(defaultVal || '');
+      return null;
+    };
+
+    function updateDraftsCounter() {
+      const container = document.querySelector('#view-drafts-queue .grid');
+      const badge = document.getElementById('drafts-count-badge');
+      if (container) {
+        const remaining = container.querySelectorAll('[id^="draft-card-"]').length;
+        if (badge) {
+          if (remaining > 0) {
+            badge.textContent = `${remaining} Pending Approval${remaining > 1 ? 's' : ''}`;
+            badge.className = 'px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          } else {
+            badge.textContent = 'All Live on Store (0 Pending)';
+            badge.className = 'px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30';
+          }
+        }
+        if (remaining === 0) {
+          container.innerHTML = `
+            <div id="no-drafts-placeholder" class="col-span-1 md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-8 text-center space-y-3 animate-in fade-in zoom-in-95 duration-300">
+              <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-lg shadow-emerald-500/10">
+                🎉
+              </div>
+              <h3 class="text-base font-bold text-white">All Discovered Drafts are Live on nnstore.shop!</h3>
+              <p class="text-xs text-slate-400 max-w-md mx-auto">Every candidate product has been approved and published to nnstore.shop with +40% profit guard and flat Rs. 150 COD.</p>
+              <button onclick="openSourceProductModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition">
+                + Source New Product (Any Category)
+              </button>
+            </div>
+          `;
+        }
       }
     }
 
@@ -2165,6 +2472,7 @@
     function publishFromPreview() {
       if (!currentPreviewProduct) return;
       const { draftId, title, salePrice, regularPrice, category, image } = currentPreviewProduct;
+      closeStorefrontPreview();
       publishProductLive(draftId, title, salePrice, regularPrice, category, image, true);
     }
 
@@ -2273,6 +2581,9 @@
         previewBtn.disabled = true;
       }
 
+      // Close preview modal immediately so only the live publish modal is focused
+      closeStorefrontPreview();
+
       // 1. Immediately open the visual live publish modal
       showPublishModalLoading(title, category, salePrice, regularPrice, imageUrl);
 
@@ -2301,27 +2612,20 @@
         const livePermalink = data.permalink || `https://nnstore.shop/?p=${data.productId || draftId}`;
         const finalImg = data.imageUrl || imageUrl;
 
-        // Update Draft Card Action Button
-        const actionsContainer = document.getElementById(`draft-actions-${draftId}`);
-        if (actionsContainer) {
-          actionsContainer.innerHTML = `
-            <a href="${livePermalink}" target="_blank" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-center flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-600/30 transition">
-              <span>🌐</span>
-              <span>LIVE ON STORE: View on nnstore.shop ↗</span>
-            </a>
-            <button onclick="openStorefrontPreview('${title.replace(/'/g, "\\'")}', '${category}', ${salePrice}, ${regularPrice}, '${finalImg}', '${title.replace(/'/g, "\\'")} is now live on nnstore.shop', '${draftId}')" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg font-semibold text-center">
-              Preview
-            </button>
-          `;
+        // 1. Smoothly fade out and remove the published draft card from the queue
+        const draftCard = document.getElementById(`draft-card-${draftId}`);
+        if (draftCard) {
+          draftCard.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+          draftCard.style.opacity = '0';
+          draftCard.style.transform = 'scale(0.88) translateY(-16px)';
+          setTimeout(() => {
+            if (draftCard.parentNode) draftCard.remove();
+            updateDraftsCounter();
+          }, 400);
         }
 
-        // Update Preview Modal Button
-        if (previewBtn) {
-          previewBtn.innerHTML = `<span>✓</span><span>LIVE! Open on nnstore.shop ↗</span>`;
-          previewBtn.className = "flex-1 sm:flex-initial px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-1.5";
-          previewBtn.onclick = function() { window.open(livePermalink, '_blank'); };
-          previewBtn.disabled = false;
-        }
+        // Ensure preview modal is closed
+        closeStorefrontPreview();
 
         // 2. Transition visual modal to complete state with link and WhatsApp feedback
         showPublishModalSuccess(title, category, salePrice, regularPrice, finalImg, livePermalink);
