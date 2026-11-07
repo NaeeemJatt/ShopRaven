@@ -52,7 +52,7 @@ const CONFIG = {
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
   STORE_SUPPORT_WHATSAPP: process.env.STORE_SUPPORT_WHATSAPP || '+923114618934',
   WASENDER_API_URL: process.env.WASENDER_API_URL || 'https://wasenderapi.com/api/send-message',
-  WASENDER_API_TOKEN: process.env.WASENDER_API_TOKEN || process.env.WHATSAPP_TOKEN || '',
+  WASENDER_API_TOKEN: process.env.WASENDER_API_TOKEN || process.env.WHATSAPP_TOKEN || '68ae12cb5efe9bd67f433ddfa9ad6d72a75bc095e796edf5fa8dc9ebb15d68ce',
   ADMIN_WHATSAPP_NUMBER: process.env.ADMIN_WHATSAPP_NUMBER || '+923114618934'
 };
 

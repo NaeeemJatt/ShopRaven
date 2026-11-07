@@ -41,6 +41,10 @@
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Engine: <strong class="text-emerald-400">Online</strong></span>
         </div>
+        <button onclick="testWhatsAppDelivery()" class="px-3 py-1.5 rounded-md bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white font-medium transition shadow-sm flex items-center space-x-1.5 border border-emerald-500/30 text-xs">
+          <span>📱</span>
+          <span>Test WhatsApp</span>
+        </button>
         <button onclick="triggerAction('Full 6-Hour Market Research Scan', 'Queries Google Trends PK, Daraz, and PriceOye, then checks catalog gap on nnstore.shop.')" class="px-3.5 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 font-medium text-white transition shadow-sm flex items-center space-x-1.5">
           <span>⚡</span>
           <span>Trigger AI Scan</span>
@@ -2326,6 +2330,44 @@
     function closeNoticeModal() {
       const modal = document.getElementById('universalNoticeModal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    function testWhatsAppDelivery() {
+      showNoticeModal({
+        title: 'Testing WhatsApp Notification',
+        message: 'Dispatching live test message via Wasender to +923114618934...\nConnecting to Wasender sender instance...',
+        badge: 'DISPATCHING...',
+        type: 'info'
+      });
+
+      const testUrl = window.location.protocol === 'file:' ? 'http://localhost:4000/api/test-whatsapp' : '/api/test-whatsapp';
+      fetch(testUrl)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            showNoticeModal({
+              title: 'WhatsApp Dispatched Successfully!',
+              message: `✅ Message sent to: ${data.targetPhone}\nSender Account: ${data.senderConnectedAccount}\n\n👉 Important: Check your WhatsApp chats on ${data.targetPhone} for messages from ${data.senderConnectedAccount}.\nIf this is the first message from this sender, WhatsApp may show it under new incoming messages.`,
+              badge: 'SENT (200 OK)',
+              type: 'success'
+            });
+          } else {
+            showNoticeModal({
+              title: 'WhatsApp Dispatch Notice',
+              message: data.error || 'Failed to dispatch via Wasender. Check server credentials.',
+              badge: 'NOTICE',
+              type: 'error'
+            });
+          }
+        })
+        .catch(err => {
+          showNoticeModal({
+            title: 'Connection Notice',
+            message: 'Could not reach /api/test-whatsapp endpoint. Ensure orchestrator is running.',
+            badge: 'ERROR',
+            type: 'error'
+          });
+        });
     }
 
     // Intercept native browser alert and prompt calls to use sleek modals

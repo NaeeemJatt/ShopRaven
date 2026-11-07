@@ -1215,6 +1215,33 @@ app.get('/api/approvals/status-dashboard', async (req, res) => {
   res.json(result);
 });
 
+// WhatsApp Live Diagnostic Test Endpoint
+app.get('/api/test-whatsapp', async (req, res) => {
+  const targetPhone = req.query.to || CONFIG.ADMIN_WHATSAPP_NUMBER || '+923114618934';
+  const timestamp = new Date().toLocaleTimeString('en-PK', { timeZone: 'Asia/Karachi' });
+  const testMsg = `⚡ *ShopRaven Live Test Notification*\n\n` +
+    `✅ Connection verified between AWS EC2 and Wasender!\n` +
+    `🏪 *Store:* ${CONFIG.WC_STORE_URL}\n` +
+    `📱 *Recipient:* ${targetPhone}\n` +
+    `⏱ *Time:* ${timestamp} PKT\n\n` +
+    `If you received this message, WhatsApp notifications are working 100%!`;
+
+  try {
+    const result = await whatsappClient.sendTextMessage(targetPhone, testMsg);
+    res.json({
+      success: true,
+      senderConnectedAccount: "923255142424 (M Yousaf Imran)",
+      targetPhone,
+      result
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
 // Start scheduler and server
 if (process.env.NODE_ENV !== 'test') {
   startScheduledJobs();
