@@ -1242,9 +1242,42 @@ app.get('/api/test-whatsapp', async (req, res) => {
   }
 });
 
+// Auto-repair WooCommerce Product Images (Fixes any legacy products with mismatched photos)
+async function repairWooCommerceProductImages() {
+  try {
+    if (!publisher.wcClient.consumerKey) return;
+    const products = await publisher.wcClient.get('/products', { per_page: 50 });
+    if (!Array.isArray(products)) return;
+
+    for (const p of products) {
+      const title = (p.name || '').toLowerCase();
+      const firstImg = (p.images && p.images[0]?.src) || '';
+      
+      // Fix Ultrasonic Skin Scrubber if it has Sunset Lamp image
+      if ((title.includes('scrubber') || title.includes('pore cleaner')) && (firstImg.includes('sunset_lamp') || !firstImg)) {
+        console.log(`[WC Auto-Repair] Correcting wrong image for product #${p.id} (${p.name})...`);
+        const correctImg = 'https://nnstore.shop/wp-content/uploads/2026/10/ultrasonic_skin_scrubber_1793319459490.jpg';
+        await publisher.wcClient.put(`/products/${p.id}`, {
+          images: [{ src: correctImg, name: p.name }]
+        });
+        console.log(`[WC Auto-Repair] Product #${p.id} updated to real skin scrubber image.`);
+      }
+    }
+    await publisher.wcClient.put('/system_status/tools/clear_transients').catch(() => {});
+  } catch (err) {
+    console.warn('[WC Auto-Repair] Non-fatal image scan warning:', err.message);
+  }
+}
+
+app.post('/api/repair-product-images', async (req, res) => {
+  await repairWooCommerceProductImages();
+  res.json({ success: true, message: 'Scanned and repaired WooCommerce product images.' });
+});
+
 // Start scheduler and server
 if (process.env.NODE_ENV !== 'test') {
   startScheduledJobs();
+  repairWooCommerceProductImages().catch(() => {});
   app.listen(CONFIG.PORT, () => {
     console.log(`🚀 ShopRaven Orchestrator listening on port ${CONFIG.PORT}`);
     console.log(`🌐 Control Room Dashboard: ${CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69'}/nnstore_ai_dashboard.html (Local: http://localhost:${CONFIG.PORT}/)`);
