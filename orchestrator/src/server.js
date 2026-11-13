@@ -718,6 +718,7 @@ function resolveCategoryIds(categoryName = '', title = '') {
 // Helper to ensure image URLs pass WordPress's strict media_sideload_image validation and accurately match products
 function resolveSafeImageUrl(rawUrl, category = '', title = '') {
   const text = ((category || '') + ' ' + (title || '')).toLowerCase();
+  const baseUrl = CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69';
 
   // 1. Strict semantic match for known products to prevent cross-product image mix-ups
   if (text.includes('scrubber') || text.includes('pore cleaner') || text.includes('skin scrubber')) {
@@ -726,13 +727,27 @@ function resolveSafeImageUrl(rawUrl, category = '', title = '') {
   if (text.includes('sunset') || text.includes('rgb lamp') || text.includes('projection light')) {
     return 'https://nnstore.shop/wp-content/uploads/2026/10/sunset_lamp_product_1793319441224.jpg';
   }
+  if (text.includes('car mount') || text.includes('car charger') || text.includes('sensor car')) {
+    return `${baseUrl}/images/car_mount_charger.jpg`;
+  }
+  if (text.includes('nail') || text.includes('baby') || text.includes('clipper') || text.includes('trimmer')) {
+    return `${baseUrl}/images/baby_nail_trimmer.jpg`;
+  }
+  if (text.includes('diffuser') || text.includes('humidifier') || text.includes('aroma')) {
+    return `${baseUrl}/images/aroma_diffuser_500ml.jpg`;
+  }
+
+  // Prepend base URL if relative /images/ path
+  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('/images/')) {
+    return `${baseUrl}${rawUrl}`;
+  }
 
   // 2. Validate incoming rawUrl if provided
   if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http')) {
     const isSunsetImg = rawUrl.includes('sunset_lamp');
     const isSunsetProduct = text.includes('sunset') || text.includes('lamp');
     if (!isSunsetImg || isSunsetProduct) {
-      if (rawUrl.includes('nnstore.shop/wp-content/uploads/') || rawUrl.includes('images.unsplash.com')) {
+      if (rawUrl.includes('nnstore.shop/wp-content/uploads/') || rawUrl.includes('images.unsplash.com') || rawUrl.includes('/images/')) {
         return rawUrl;
       }
       const cleanPath = rawUrl.split('?')[0];
@@ -1248,12 +1263,13 @@ async function repairWooCommerceProductImages() {
     if (!publisher.wcClient.consumerKey) return;
     const products = await publisher.wcClient.get('/products', { per_page: 50 });
     if (!Array.isArray(products)) return;
+    const baseUrl = CONFIG.PUBLIC_APP_URL || 'http://52.65.208.69';
 
     for (const p of products) {
       const title = (p.name || '').toLowerCase();
       const firstImg = (p.images && p.images[0]?.src) || '';
       
-      // Fix Ultrasonic Skin Scrubber if it has Sunset Lamp image
+      // Fix Ultrasonic Skin Scrubber if it has Sunset Lamp or wrong image
       if ((title.includes('scrubber') || title.includes('pore cleaner')) && (firstImg.includes('sunset_lamp') || !firstImg)) {
         console.log(`[WC Auto-Repair] Correcting wrong image for product #${p.id} (${p.name})...`);
         const correctImg = 'https://nnstore.shop/wp-content/uploads/2026/10/ultrasonic_skin_scrubber_1793319459490.jpg';
@@ -1261,6 +1277,33 @@ async function repairWooCommerceProductImages() {
           images: [{ src: correctImg, name: p.name }]
         });
         console.log(`[WC Auto-Repair] Product #${p.id} updated to real skin scrubber image.`);
+      }
+
+      // Fix Car Mount Charger if wrong image
+      if ((title.includes('car mount') || title.includes('car charger')) && (firstImg.includes('sunset_lamp') || firstImg.includes('pexels') || !firstImg)) {
+        console.log(`[WC Auto-Repair] Correcting wrong image for product #${p.id} (${p.name})...`);
+        await publisher.wcClient.put(`/products/${p.id}`, {
+          images: [{ src: `${baseUrl}/images/car_mount_charger.jpg`, name: p.name }]
+        });
+        console.log(`[WC Auto-Repair] Product #${p.id} updated to real car mount charger image.`);
+      }
+
+      // Fix Baby Nail Trimmer if wrong image
+      if ((title.includes('nail') || title.includes('baby')) && (firstImg.includes('sunset_lamp') || firstImg.includes('pexels') || !firstImg)) {
+        console.log(`[WC Auto-Repair] Correcting wrong image for product #${p.id} (${p.name})...`);
+        await publisher.wcClient.put(`/products/${p.id}`, {
+          images: [{ src: `${baseUrl}/images/baby_nail_trimmer.jpg`, name: p.name }]
+        });
+        console.log(`[WC Auto-Repair] Product #${p.id} updated to real baby nail trimmer image.`);
+      }
+
+      // Fix Diffuser if wrong image
+      if ((title.includes('diffuser') || title.includes('humidifier')) && (firstImg.includes('sunset_lamp') || firstImg.includes('pexels') || !firstImg)) {
+        console.log(`[WC Auto-Repair] Correcting wrong image for product #${p.id} (${p.name})...`);
+        await publisher.wcClient.put(`/products/${p.id}`, {
+          images: [{ src: `${baseUrl}/images/aroma_diffuser_500ml.jpg`, name: p.name }]
+        });
+        console.log(`[WC Auto-Repair] Product #${p.id} updated to real aroma diffuser image.`);
       }
     }
     await publisher.wcClient.put('/system_status/tools/clear_transients').catch(() => {});
